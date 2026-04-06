@@ -888,7 +888,6 @@
   <div id="loadingOverlay" class="loading-overlay">
     <div style="text-align: center;"><div class="spinner"></div><div class="loading-text" id="loadingText">Processing...</div></div>
   </div>
-
 <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbxHRLkbRglqCdelnzY4R2D-nX3ZyXSXyP6mEEIf9Twx0tG717QiFEHSWioqw0zv1Wg/exec';
     
@@ -905,924 +904,1088 @@
     let searchTimeout = null;
     let syncInterval = null;
     
+    // Dummy function to prevent ReferenceError (in case something tries to call it)
+    window.getBranchData = function() {
+        console.warn('getBranchData is an API function, not frontend');
+        return null;
+    };
+    
     // Initialize IndexedDB
     function initIndexedDB() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        request.onerror = () => reject(request.error);
-        request.onsuccess = () => {
-          db = request.result;
-          resolve(db);
-        };
-        request.onupgradeneeded = (event) => {
-          db = event.target.result;
-          if (!db.objectStoreNames.contains('pending_actions')) {
-            const store = db.createObjectStore('pending_actions', { keyPath: 'id', autoIncrement: true });
-            store.createIndex('action', 'action', { unique: false });
-            store.createIndex('receipt_no', 'receipt_no', { unique: false });
-            store.createIndex('synced', 'synced', { unique: false });
-            store.createIndex('created_at', 'created_at', { unique: false });
-          }
-          if (!db.objectStoreNames.contains('synced_receipts')) {
-            const store = db.createObjectStore('synced_receipts', { keyPath: 'receipt_no' });
-            store.createIndex('synced_at', 'synced_at', { unique: false });
-          }
-        };
-      });
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => {
+                db = request.result;
+                resolve(db);
+            };
+            request.onupgradeneeded = (event) => {
+                db = event.target.result;
+                if (!db.objectStoreNames.contains('pending_actions')) {
+                    const store = db.createObjectStore('pending_actions', { keyPath: 'id', autoIncrement: true });
+                    store.createIndex('action', 'action', { unique: false });
+                    store.createIndex('receipt_no', 'receipt_no', { unique: false });
+                    store.createIndex('synced', 'synced', { unique: false });
+                    store.createIndex('created_at', 'created_at', { unique: false });
+                }
+                if (!db.objectStoreNames.contains('synced_receipts')) {
+                    const store = db.createObjectStore('synced_receipts', { keyPath: 'receipt_no' });
+                    store.createIndex('synced_at', 'synced_at', { unique: false });
+                }
+            };
+        });
     }
     
     // Save pending action to IndexedDB
     async function savePendingAction(actionData) {
-      if (!db) await initIndexedDB();
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['pending_actions'], 'readwrite');
-        const store = transaction.objectStore('pending_actions');
-        const data = {
-          ...actionData,
-          created_at: new Date().toISOString(),
-          synced: false,
-          retry_count: 0
-        };
-        const request = store.add(data);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
+        if (!db) await initIndexedDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['pending_actions'], 'readwrite');
+            const store = transaction.objectStore('pending_actions');
+            const data = {
+                ...actionData,
+                created_at: new Date().toISOString(),
+                synced: false,
+                retry_count: 0
+            };
+            const request = store.add(data);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
     }
     
     // Get all pending actions
     async function getPendingActions() {
-      if (!db) await initIndexedDB();
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['pending_actions'], 'readonly');
-        const store = transaction.objectStore('pending_actions');
-        const index = store.index('synced');
-        const request = index.getAll(false);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
+        if (!db) await initIndexedDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['pending_actions'], 'readonly');
+            const store = transaction.objectStore('pending_actions');
+            const index = store.index('synced');
+            const request = index.getAll(false);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
     }
     
     // Mark action as synced
     async function markActionSynced(id) {
-      if (!db) await initIndexedDB();
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['pending_actions'], 'readwrite');
-        const store = transaction.objectStore('pending_actions');
-        const getRequest = store.get(id);
-        getRequest.onsuccess = () => {
-          const action = getRequest.result;
-          if (action) {
-            action.synced = true;
-            action.synced_at = new Date().toISOString();
-            store.put(action);
-          }
-          resolve();
-        };
-        getRequest.onerror = () => reject(getRequest.error);
-      });
+        if (!db) await initIndexedDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['pending_actions'], 'readwrite');
+            const store = transaction.objectStore('pending_actions');
+            const getRequest = store.get(id);
+            getRequest.onsuccess = () => {
+                const action = getRequest.result;
+                if (action) {
+                    action.synced = true;
+                    action.synced_at = new Date().toISOString();
+                    store.put(action);
+                }
+                resolve();
+            };
+            getRequest.onerror = () => reject(getRequest.error);
+        });
     }
     
     // Delete action
     async function deleteAction(id) {
-      if (!db) await initIndexedDB();
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['pending_actions'], 'readwrite');
-        const store = transaction.objectStore('pending_actions');
-        const request = store.delete(id);
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-      });
+        if (!db) await initIndexedDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['pending_actions'], 'readwrite');
+            const store = transaction.objectStore('pending_actions');
+            const request = store.delete(id);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
     }
     
     // Save synced receipt
     async function saveSyncedReceipt(receipt_no) {
-      if (!db) await initIndexedDB();
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['synced_receipts'], 'readwrite');
-        const store = transaction.objectStore('synced_receipts');
-        const request = store.put({ receipt_no: receipt_no, synced_at: new Date().toISOString() });
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-      });
+        if (!db) await initIndexedDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['synced_receipts'], 'readwrite');
+            const store = transaction.objectStore('synced_receipts');
+            const request = store.put({ receipt_no: receipt_no, synced_at: new Date().toISOString() });
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
     }
     
     // Get last 10 synced receipts
     async function getLast10SyncedReceipts() {
-      if (!db) await initIndexedDB();
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['synced_receipts'], 'readonly');
-        const store = transaction.objectStore('synced_receipts');
-        const request = store.getAll();
-        request.onsuccess = () => {
-          let receipts = request.result || [];
-          receipts.sort((a, b) => new Date(b.synced_at) - new Date(a.synced_at));
-          resolve(receipts.slice(0, 10).map(r => r.receipt_no));
-        };
-        request.onerror = () => reject(request.error);
-      });
+        if (!db) await initIndexedDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['synced_receipts'], 'readonly');
+            const store = transaction.objectStore('synced_receipts');
+            const request = store.getAll();
+            request.onsuccess = () => {
+                let receipts = request.result || [];
+                receipts.sort((a, b) => new Date(b.synced_at) - new Date(a.synced_at));
+                resolve(receipts.slice(0, 10).map(r => r.receipt_no));
+            };
+            request.onerror = () => reject(request.error);
+        });
     }
     
     // Check if receipt exists in last 10 (local + remote)
     async function checkReceiptExists(receipt_no) {
-      const localReceipts = await getLast10SyncedReceipts();
-      if (localReceipts.includes(receipt_no)) return true;
-      
-      try {
-        const response = await fetch(`${API_URL}?action=check_receipt_exists&receipt_no=${encodeURIComponent(receipt_no)}`);
-        const data = await response.json();
-        if (data.exists) {
-          await saveSyncedReceipt(receipt_no);
-          return true;
+        const localReceipts = await getLast10SyncedReceipts();
+        if (localReceipts.includes(receipt_no)) return true;
+        
+        try {
+            const response = await fetch(`${API_URL}?action=check_receipt_exists&receipt_no=${encodeURIComponent(receipt_no)}`);
+            const data = await response.json();
+            if (data.exists) {
+                await saveSyncedReceipt(receipt_no);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error checking receipt:', error);
+            return false;
         }
-        return false;
-      } catch (error) {
-        console.error('Error checking receipt:', error);
-        return false;
-      }
     }
     
     // Sync pending actions to API with retry
     async function syncPendingActions() {
-      if (!navigator.onLine) {
-        showSyncStatus('Offline - waiting for connection', 'sync-error');
-        return;
-      }
-      
-      const pending = await getPendingActions();
-      if (pending.length === 0) return;
-      
-      showSyncStatus(`Syncing ${pending.length} actions...`, 'sync-loading');
-      
-      for (const action of pending) {
-        try {
-          if (action.receipt_no) {
-            const exists = await checkReceiptExists(action.receipt_no);
-            if (exists) {
-              await markActionSynced(action.id);
-              await saveSyncedReceipt(action.receipt_no);
-              continue;
-            }
-          }
-          
-          const params = new URLSearchParams(action.params);
-          params.append('receipt_no', action.receipt_no);
-          
-          const response = await fetch(`${API_URL}?${params}`);
-          const data = await response.json();
-          
-          if (data.status === 'success') {
-            await markActionSynced(action.id);
-            await saveSyncedReceipt(action.receipt_no);
-            showSyncStatus(`✓ ${action.action} synced`, 'sync-success');
-          } else if (data.status === 'duplicate') {
-            await markActionSynced(action.id);
-            await saveSyncedReceipt(action.receipt_no);
-            showSyncStatus(`⚠ Duplicate skipped: ${action.receipt_no}`, 'sync-warning');
-          } else {
-            action.retry_count = (action.retry_count || 0) + 1;
-            if (action.retry_count >= 5) {
-              await deleteAction(action.id);
-              showSyncStatus(`✗ Failed: ${action.action} after 5 retries`, 'sync-error');
-            } else {
-              const updatedAction = { ...action, synced: false };
-              await savePendingAction(updatedAction);
-              await deleteAction(action.id);
-            }
-          }
-        } catch (error) {
-          console.error('Sync error:', error);
-          action.retry_count = (action.retry_count || 0) + 1;
-          if (action.retry_count >= 5) {
-            await deleteAction(action.id);
-          }
+        if (!navigator.onLine) {
+            showSyncStatus('Offline - waiting for connection', 'sync-error');
+            return;
         }
-      }
-      
-      const remaining = await getPendingActions();
-      if (remaining.length === 0) {
-        showSyncStatus('All actions synced!', 'sync-success');
-        setTimeout(() => document.querySelector('.sync-status')?.remove(), 3000);
-      }
+        
+        const pending = await getPendingActions();
+        if (pending.length === 0) return;
+        
+        showSyncStatus(`Syncing ${pending.length} actions...`, 'sync-loading');
+        
+        for (const action of pending) {
+            try {
+                if (action.receipt_no) {
+                    const exists = await checkReceiptExists(action.receipt_no);
+                    if (exists) {
+                        await markActionSynced(action.id);
+                        await saveSyncedReceipt(action.receipt_no);
+                        continue;
+                    }
+                }
+                
+                const params = new URLSearchParams(action.params);
+                params.append('receipt_no', action.receipt_no);
+                
+                const response = await fetch(`${API_URL}?${params}`);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    await markActionSynced(action.id);
+                    await saveSyncedReceipt(action.receipt_no);
+                    showSyncStatus(`✓ ${action.action} synced`, 'sync-success');
+                } else if (data.status === 'duplicate') {
+                    await markActionSynced(action.id);
+                    await saveSyncedReceipt(action.receipt_no);
+                    showSyncStatus(`⚠ Duplicate skipped: ${action.receipt_no}`, 'sync-warning');
+                } else {
+                    action.retry_count = (action.retry_count || 0) + 1;
+                    if (action.retry_count >= 5) {
+                        await deleteAction(action.id);
+                        showSyncStatus(`✗ Failed: ${action.action} after 5 retries`, 'sync-error');
+                    } else {
+                        const updatedAction = { ...action, synced: false };
+                        await savePendingAction(updatedAction);
+                        await deleteAction(action.id);
+                    }
+                }
+            } catch (error) {
+                console.error('Sync error:', error);
+                action.retry_count = (action.retry_count || 0) + 1;
+                if (action.retry_count >= 5) {
+                    await deleteAction(action.id);
+                }
+            }
+        }
+        
+        const remaining = await getPendingActions();
+        if (remaining.length === 0) {
+            showSyncStatus('All actions synced!', 'sync-success');
+            setTimeout(() => document.querySelector('.sync-status')?.remove(), 3000);
+        }
     }
     
     // Start auto sync
     function startAutoSync() {
-      if (syncInterval) clearInterval(syncInterval);
-      syncInterval = setInterval(() => {
-        if (navigator.onLine) syncPendingActions();
-      }, 30000);
-      setTimeout(syncPendingActions, 5000);
+        if (syncInterval) clearInterval(syncInterval);
+        syncInterval = setInterval(() => {
+            if (navigator.onLine) syncPendingActions();
+        }, 30000);
+        setTimeout(syncPendingActions, 5000);
     }
     
     // Show sync status
     function showSyncStatus(message, className) {
-      let statusEl = document.querySelector('.sync-status');
-      if (!statusEl) {
-        statusEl = document.createElement('div');
+        let statusEl = document.querySelector('.sync-status');
+        if (!statusEl) {
+            statusEl = document.createElement('div');
+            statusEl.className = `sync-status ${className}`;
+            document.body.appendChild(statusEl);
+        }
+        statusEl.textContent = message;
         statusEl.className = `sync-status ${className}`;
-        document.body.appendChild(statusEl);
-      }
-      statusEl.textContent = message;
-      statusEl.className = `sync-status ${className}`;
-      if (className === 'sync-success') {
-        setTimeout(() => statusEl.remove(), 3000);
-      }
+        if (className === 'sync-success') {
+            setTimeout(() => statusEl.remove(), 3000);
+        }
     }
     
     // Process action with IndexedDB and sync
     async function processWithSync(action, params, receipt_no) {
-      await savePendingAction({
-        action: action,
-        params: params,
-        receipt_no: receipt_no
-      });
-      
-      if (navigator.onLine) {
-        await syncPendingActions();
-      } else {
-        showSyncStatus('Saved offline - will sync when online', 'sync-loading');
-      }
+        await savePendingAction({
+            action: action,
+            params: params,
+            receipt_no: receipt_no
+        });
+        
+        if (navigator.onLine) {
+            await syncPendingActions();
+        } else {
+            showSyncStatus('Saved offline - will sync when online', 'sync-loading');
+        }
     }
     
     // Generate unique receipt number
     function generateReceiptNumber(prefix = 'ACT') {
-      const timestamp = Date.now();
-      const random = Math.floor(Math.random() * 1000);
-      return `${prefix}_${timestamp}_${random}`;
+        const timestamp = Date.now();
+        const random = Math.floor(Math.random() * 1000);
+        return `${prefix}_${timestamp}_${random}`;
     }
     
     document.addEventListener('DOMContentLoaded', async function() {
-      await initIndexedDB();
-      checkLogin();
-      loadProducts();
-      loadCashiers();
-      setupEventListeners();
-      setDefaultDates();
-      startAutoSync();
-      
-      window.addEventListener('online', () => {
-        showSyncStatus('Back online - syncing...', 'sync-loading');
-        syncPendingActions();
-      });
+        await initIndexedDB();
+        checkLogin();
+        loadProducts();
+        loadCashiers();
+        setupEventListeners();
+        setDefaultDates();
+        startAutoSync();
+        
+        window.addEventListener('online', () => {
+            showSyncStatus('Back online - syncing...', 'sync-loading');
+            syncPendingActions();
+        });
     });
     
     function setDefaultDates() {
-      const today = new Date().toISOString().split('T')[0];
-      const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
-      document.getElementById('historyStartDate').value = firstDay;
-      document.getElementById('historyEndDate').value = today;
+        const today = new Date().toISOString().split('T')[0];
+        const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+        const startDateInput = document.getElementById('historyStartDate');
+        const endDateInput = document.getElementById('historyEndDate');
+        if (startDateInput) startDateInput.value = firstDay;
+        if (endDateInput) endDateInput.value = today;
     }
     
     function checkLogin() {
-      const username = localStorage.getItem('username');
-      const role = localStorage.getItem('role');
-      const branch = localStorage.getItem('branch');
-      if (!username || !role || !branch) {
-        window.location.href = 'index.html';
-        return;
-      }
-      currentUser = { username, role, branch };
-      document.getElementById('welcomeMessage').textContent = username;
-      document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
-      
-      document.querySelectorAll('select[id$="Branch"]').forEach(select => {
-        if (select.id !== 'viewBranchSelect' && select.id !== 'historyBranch' && select.id !== 'stockTakeBranch') {
-          select.value = branch;
+        const username = localStorage.getItem('username');
+        const role = localStorage.getItem('role');
+        const branch = localStorage.getItem('branch');
+        if (!username || !role || !branch) {
+            window.location.href = 'index.html';
+            return;
         }
-      });
-      document.getElementById('viewBranchSelect').value = branch;
-      document.getElementById('stockTakeBranch').value = branch;
-      document.getElementById('historyBranch').value = branch;
-      document.getElementById('stockBranch').value = branch;
+        currentUser = { username, role, branch };
+        const welcomeMsg = document.getElementById('welcomeMessage');
+        const userAvatar = document.getElementById('userAvatar');
+        if (welcomeMsg) welcomeMsg.textContent = username;
+        if (userAvatar) userAvatar.textContent = username.charAt(0).toUpperCase();
+        
+        const viewBranchSelect = document.getElementById('viewBranchSelect');
+        const stockTakeBranch = document.getElementById('stockTakeBranch');
+        const historyBranch = document.getElementById('historyBranch');
+        const stockBranch = document.getElementById('stockBranch');
+        
+        if (viewBranchSelect) viewBranchSelect.value = branch;
+        if (stockTakeBranch) stockTakeBranch.value = branch;
+        if (historyBranch) historyBranch.value = branch;
+        if (stockBranch) stockBranch.value = branch;
     }
     
     async function loadCashiers() {
-      try {
-        const response = await fetch(`${API_URL}?action=get_cashiers`);
-        const data = await response.json();
-        if (data.status === 'success') {
-          const select = document.getElementById('stockTakeCashier');
-          select.innerHTML = '<option value="">Select Cashier</option>' + data.cashiers.map(c => `<option value="${c}">${c}</option>`).join('');
+        try {
+            const response = await fetch(`${API_URL}?action=get_cashiers`);
+            const data = await response.json();
+            const cashierSelect = document.getElementById('stockTakeCashier');
+            if (cashierSelect && data.status === 'success') {
+                cashierSelect.innerHTML = '<option value="">Select Cashier</option>' + (data.cashiers || []).map(c => `<option value="${c}">${c}</option>`).join('');
+            }
+        } catch (error) {
+            console.error('Error loading cashiers:', error);
         }
-      } catch (error) {
-        console.error('Error loading cashiers:', error);
-      }
     }
     
     function setupEventListeners() {
-      const updateProductForm = document.getElementById('updateProductForm');
-      if (updateProductForm) {
-        updateProductForm.addEventListener('submit', function(e) {
-          e.preventDefault();
-          updateProduct();
-        });
-      }
-      
-      const logoutBtn = document.getElementById('logoutBtn');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
-          localStorage.clear();
-          window.location.href = 'index.html';
-        });
-      }
+        const updateProductForm = document.getElementById('updateProductForm');
+        if (updateProductForm) {
+            updateProductForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                updateProduct();
+            });
+        }
+        
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            });
+        }
     }
     
     function switchTab(tabName) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      const tab = document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`);
-      if (tab) tab.classList.add('active');
-      const tabContent = document.getElementById(`tab-${tabName}`);
-      if (tabContent) tabContent.classList.add('active');
-      if (tabName === 'stocktake') loadStockTakeProducts();
-      if (tabName === 'history') loadStockTakeHistory();
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        const tab = document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`);
+        if (tab) tab.classList.add('active');
+        const tabContent = document.getElementById(`tab-${tabName}`);
+        if (tabContent) tabContent.classList.add('active');
+        if (tabName === 'stocktake') loadStockTakeProducts();
+        if (tabName === 'history') loadStockTakeHistory();
     }
     
     function showUpdatePanel(code) {
-      document.getElementById('updatePanel').classList.add('show');
-      document.getElementById('updateCode').value = code;
-      document.getElementById('updateBranch').value = currentBranch;
-      fetchProductForUpdate(code);
+        const panel = document.getElementById('updatePanel');
+        const updateCode = document.getElementById('updateCode');
+        const updateBranch = document.getElementById('updateBranch');
+        if (panel) panel.classList.add('show');
+        if (updateCode) updateCode.value = code;
+        if (updateBranch) updateBranch.value = currentBranch;
+        fetchProductForUpdate(code);
     }
     
     function hideUpdatePanel() {
-      document.getElementById('updatePanel').classList.remove('show');
-      document.getElementById('updateProductForm').reset();
+        const panel = document.getElementById('updatePanel');
+        const form = document.getElementById('updateProductForm');
+        if (panel) panel.classList.remove('show');
+        if (form) form.reset();
     }
     
     async function fetchProductForUpdate(code) {
-      showLoading('Fetching product...');
-      try {
-        const response = await fetch(`${API_URL}?action=get_product_by_code&branch=${encodeURIComponent(currentBranch)}&code=${encodeURIComponent(code)}`);
-        const data = await response.json();
-        if (data.status === 'success' && data.data) {
-          const p = data.data;
-          document.getElementById('updateProduct').value = p.product || p.Product || '';
-          document.getElementById('updateCost').value = p.cost || p.Cost || '';
-          document.getElementById('updatePrice').value = p.price || p.Price || '';
-          document.getElementById('updateTax').value = p.tax || p.TAX || '';
-          document.getElementById('updateItem').value = p.item || p.Item || '';
-        } else {
-          showAlert('Error', 'Product not found');
+        showLoading('Fetching product...');
+        try {
+            const response = await fetch(`${API_URL}?action=get_product_by_code&branch=${encodeURIComponent(currentBranch)}&code=${encodeURIComponent(code)}`);
+            const data = await response.json();
+            if (data.status === 'success' && data.data) {
+                const p = data.data;
+                const updateProduct = document.getElementById('updateProduct');
+                const updateCost = document.getElementById('updateCost');
+                const updatePrice = document.getElementById('updatePrice');
+                const updateTax = document.getElementById('updateTax');
+                const updateItem = document.getElementById('updateItem');
+                if (updateProduct) updateProduct.value = p.product || p.Product || '';
+                if (updateCost) updateCost.value = p.cost || p.Cost || '';
+                if (updatePrice) updatePrice.value = p.price || p.Price || '';
+                if (updateTax) updateTax.value = p.tax || p.TAX || '';
+                if (updateItem) updateItem.value = p.item || p.Item || '';
+            } else {
+                showAlert('Error', 'Product not found');
+            }
+        } catch (error) {
+            console.error(error);
+            showAlert('Error', 'Failed to fetch product');
+        } finally {
+            hideLoading();
         }
-      } catch (error) {
-        console.error(error);
-        showAlert('Error', 'Failed to fetch product');
-      } finally {
-        hideLoading();
-      }
     }
     
     async function updateProduct() {
-      const params = {
-        action: 'update_product',
-        old_code: document.getElementById('updateCode').value,
-        branch: document.getElementById('updateBranch').value
-      };
-      if (document.getElementById('updateProduct').value) params.product = document.getElementById('updateProduct').value;
-      if (document.getElementById('updateCost').value) params.cost = document.getElementById('updateCost').value;
-      if (document.getElementById('updatePrice').value) params.price = document.getElementById('updatePrice').value;
-      if (document.getElementById('updateTax').value) params.tax = document.getElementById('updateTax').value;
-      if (document.getElementById('updateItem').value) params.item = document.getElementById('updateItem').value;
-      
-      if (Object.keys(params).length <= 2) {
-        return showAlert('Warning', 'Please fill at least one field to update');
-      }
-      
-      const receipt_no = generateReceiptNumber('UPD');
-      await processWithSync('update_product', params, receipt_no);
-      showAlert('Success', 'Product update queued for sync');
-      hideUpdatePanel();
-      loadProducts();
+        const params = {
+            action: 'update_product',
+            old_code: document.getElementById('updateCode').value,
+            branch: document.getElementById('updateBranch').value
+        };
+        const productName = document.getElementById('updateProduct').value;
+        const cost = document.getElementById('updateCost').value;
+        const price = document.getElementById('updatePrice').value;
+        const tax = document.getElementById('updateTax').value;
+        const item = document.getElementById('updateItem').value;
+        
+        if (productName) params.product = productName;
+        if (cost) params.cost = cost;
+        if (price) params.price = price;
+        if (tax) params.tax = tax;
+        if (item && item !== '') params.item = item;
+        
+        if (Object.keys(params).length <= 2) {
+            return showAlert('Warning', 'Please fill at least one field to update');
+        }
+        
+        const receipt_no = generateReceiptNumber('UPD');
+        await processWithSync('update_product', params, receipt_no);
+        showAlert('Success', 'Product update queued for sync');
+        hideUpdatePanel();
+        loadProducts();
     }
     
     async function loadProducts() {
-      const branch = document.getElementById('viewBranchSelect').value;
-      currentBranch = branch;
-      showLoading('Loading products...');
-      try {
-        const response = await fetch(`${API_URL}?action=json&branch=${encodeURIComponent(branch)}`);
-        const data = await response.json();
-        if (data.status === 'success') {
-          currentProducts = data.data || [];
-          displayProducts(currentProducts);
-          updateSummary(data.summary);
-        } else {
-          showAlert('Error', data.message || 'Failed to load products');
+        const branchSelect = document.getElementById('viewBranchSelect');
+        const branch = branchSelect ? branchSelect.value : 'Main';
+        currentBranch = branch;
+        showLoading('Loading products...');
+        try {
+            const response = await fetch(`${API_URL}?action=json&branch=${encodeURIComponent(branch)}`);
+            const data = await response.json();
+            if (data.status === 'success') {
+                currentProducts = data.data || [];
+                displayProducts(currentProducts);
+                updateSummary(data.summary);
+            } else {
+                showAlert('Error', data.message || 'Failed to load products');
+            }
+        } catch (error) {
+            console.error('Error loading products:', error);
+            showAlert('Error', 'Failed to load products. Please try again.');
+        } finally {
+            hideLoading();
         }
-      } catch (error) {
-        console.error('Error loading products:', error);
-        showAlert('Error', 'Failed to load products. Please try again.');
-      } finally {
-        hideLoading();
-      }
     }
     
     function displayProducts(products) {
-      const tbody = document.getElementById('productsTableBody');
-      if (!products || !products.length) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No products found</td></tr>';
-        return;
-      }
-      
-      const productMap = new Map();
-      products.forEach(p => {
-        const key = `${p.code}-${p.Product}`;
-        if (!productMap.has(key)) {
-          productMap.set(key, {
-            code: p.code,
-            name: p.Product,
-            cost: parseFloat(p.Cost) || 0,
-            price: parseFloat(p.Price) || 0,
-            stock: 0,
-            item: p.item || 'each',
-            tax: parseFloat(p.TAX) || 15.5
-          });
+        const tbody = document.getElementById('productsTableBody');
+        if (!tbody) return;
+        
+        if (!products || !products.length) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No products found</td></tr>';
+            return;
         }
-        productMap.get(key).stock += parseFloat(p.Stock) || 0;
-      });
-      
-      const aggregated = Array.from(productMap.values());
-      
-      tbody.innerHTML = aggregated.map(p => {
-        const value = p.stock * p.price;
-        const stockClass = p.stock > 10 ? 'stock-high' : p.stock > 3 ? 'stock-medium' : 'stock-low';
-        return `<tr><td><strong>${p.code || '-'}</strong></td><td>${p.name}</td><td>$${p.cost.toFixed(2)}</td><td>$${p.price.toFixed(2)}</td><td class="${stockClass}">${p.stock}</td><td>$${value.toFixed(2)}</td><td>${p.item}</td><td>${p.tax}%</td><td><div class="action-btns"><button class="btn btn-info btn-sm" onclick="viewProductDetails('${p.code}')" title="View"><i class="fas fa-eye"></i></button><button class="btn btn-warning btn-sm" onclick="showUpdatePanel('${p.code}')" title="Edit"><i class="fas fa-edit"></i></button></div></td></tr>`;
-      }).join('');
+        
+        const productMap = new Map();
+        products.forEach(p => {
+            const key = `${p.code}-${p.Product}`;
+            if (!productMap.has(key)) {
+                productMap.set(key, {
+                    code: p.code,
+                    name: p.Product,
+                    cost: parseFloat(p.Cost) || 0,
+                    price: parseFloat(p.Price) || 0,
+                    stock: 0,
+                    item: p.item || 'each',
+                    tax: parseFloat(p.TAX) || 15.5
+                });
+            }
+            productMap.get(key).stock += parseFloat(p.Stock) || 0;
+        });
+        
+        const aggregated = Array.from(productMap.values());
+        
+        tbody.innerHTML = aggregated.map(p => {
+            const value = p.stock * p.price;
+            const stockClass = p.stock > 10 ? 'stock-high' : p.stock > 3 ? 'stock-medium' : 'stock-low';
+            return `<tr>
+                <td><strong>${escapeHtml(p.code || '-')}</strong></td>
+                <td>${escapeHtml(p.name)}</td>
+                <td>$${p.cost.toFixed(2)}</td>
+                <td>$${p.price.toFixed(2)}</td>
+                <td class="${stockClass}">${p.stock}</td>
+                <td>$${value.toFixed(2)}</td>
+                <td>${p.item}</td>
+                <td>${p.tax}%</td>
+                <td><div class="action-btns"><button class="btn btn-info btn-sm" onclick="viewProductDetails('${escapeHtml(p.code)}')" title="View"><i class="fas fa-eye"></i></button><button class="btn btn-warning btn-sm" onclick="showUpdatePanel('${escapeHtml(p.code)}')" title="Edit"><i class="fas fa-edit"></i></button></div></td>
+            </tr>`;
+        }).join('');
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
     }
     
     function updateSummary(summary) {
-      if (summary) {
-        document.getElementById('totalProducts').textContent = summary.total_products || 0;
-        document.getElementById('totalStock').textContent = summary.total_stock || 0;
-        document.getElementById('totalValue').textContent = `$${(summary.total_value || 0).toFixed(2)}`;
-      }
+        if (summary) {
+            const totalProducts = document.getElementById('totalProducts');
+            const totalStock = document.getElementById('totalStock');
+            const totalValue = document.getElementById('totalValue');
+            if (totalProducts) totalProducts.textContent = summary.total_products || 0;
+            if (totalStock) totalStock.textContent = summary.total_stock || 0;
+            if (totalValue) totalValue.textContent = `$${(summary.total_value || 0).toFixed(2)}`;
+        }
     }
     
     function filterProducts() {
-      const searchTerm = document.getElementById('viewSearch').value.toLowerCase();
-      if (!searchTerm) return displayProducts(currentProducts);
-      const filtered = currentProducts.filter(p => 
-        (p.Product && p.Product.toLowerCase().includes(searchTerm)) ||
-        (p.code && p.code.toString().toLowerCase().includes(searchTerm))
-      );
-      displayProducts(filtered);
+        const searchInput = document.getElementById('viewSearch');
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        if (!searchTerm) return displayProducts(currentProducts);
+        const filtered = currentProducts.filter(p => 
+            (p.Product && p.Product.toLowerCase().includes(searchTerm)) ||
+            (p.code && p.code.toString().toLowerCase().includes(searchTerm))
+        );
+        displayProducts(filtered);
     }
     
     function clearFilter() {
-      document.getElementById('viewSearch').value = '';
-      displayProducts(currentProducts);
+        const searchInput = document.getElementById('viewSearch');
+        if (searchInput) searchInput.value = '';
+        displayProducts(currentProducts);
     }
     
     function openStockModal() {
-      document.getElementById('stockModalTitle').textContent = 'Receive Stock';
-      document.getElementById('receiveStockBtn').style.display = 'inline-flex';
-      document.getElementById('removeStockBtn').style.display = 'none';
-      clearStockForm();
-      openModal('stockModal');
+        const modalTitle = document.getElementById('stockModalTitle');
+        const receiveBtn = document.getElementById('receiveStockBtn');
+        const removeBtn = document.getElementById('removeStockBtn');
+        if (modalTitle) modalTitle.textContent = 'Receive Stock';
+        if (receiveBtn) receiveBtn.style.display = 'inline-flex';
+        if (removeBtn) removeBtn.style.display = 'none';
+        clearStockForm();
+        openModal('stockModal');
     }
     
     function openRemoveStockModal() {
-      document.getElementById('stockModalTitle').textContent = 'Remove Stock';
-      document.getElementById('receiveStockBtn').style.display = 'none';
-      document.getElementById('removeStockBtn').style.display = 'inline-flex';
-      clearStockForm();
-      openModal('stockModal');
+        const modalTitle = document.getElementById('stockModalTitle');
+        const receiveBtn = document.getElementById('receiveStockBtn');
+        const removeBtn = document.getElementById('removeStockBtn');
+        if (modalTitle) modalTitle.textContent = 'Remove Stock';
+        if (receiveBtn) receiveBtn.style.display = 'none';
+        if (removeBtn) removeBtn.style.display = 'inline-flex';
+        clearStockForm();
+        openModal('stockModal');
     }
     
     function clearStockForm() {
-      document.getElementById('stockProductName').value = '';
-      document.getElementById('stockProductCode').value = '';
-      document.getElementById('stockCost').value = '';
-      document.getElementById('stockPrice').value = '';
-      document.getElementById('stockQuantity').value = '1';
-      document.getElementById('stockReason').value = 'Stock adjustment';
-      document.getElementById('productSearchInput').value = '';
-      document.getElementById('searchSuggestions').style.display = 'none';
-      calculateProfitPreview();
+        const productName = document.getElementById('stockProductName');
+        const productCode = document.getElementById('stockProductCode');
+        const cost = document.getElementById('stockCost');
+        const price = document.getElementById('stockPrice');
+        const quantity = document.getElementById('stockQuantity');
+        const reason = document.getElementById('stockReason');
+        const searchInput = document.getElementById('productSearchInput');
+        const suggestions = document.getElementById('searchSuggestions');
+        
+        if (productName) productName.value = '';
+        if (productCode) productCode.value = '';
+        if (cost) cost.value = '';
+        if (price) price.value = '';
+        if (quantity) quantity.value = '1';
+        if (reason) reason.value = 'Stock adjustment';
+        if (searchInput) searchInput.value = '';
+        if (suggestions) suggestions.style.display = 'none';
+        calculateProfitPreview();
     }
     
     async function searchProductsForStock() {
-      const searchTerm = document.getElementById('productSearchInput').value.trim();
-      const suggestionsDiv = document.getElementById('searchSuggestions');
-      if (searchTerm.length < 2) {
-        suggestionsDiv.style.display = 'none';
-        return;
-      }
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(async () => {
-        try {
-          const response = await fetch(`${API_URL}?action=search_products&branch=${encodeURIComponent(currentBranch)}&search=${encodeURIComponent(searchTerm)}`);
-          const data = await response.json();
-          if (data.status === 'success' && data.results && data.results.length > 0) {
-            suggestionsDiv.innerHTML = data.results.map(p => `<div class="suggestion-item" onclick="selectProductForStock('${p.code}', '${p.product.replace(/'/g, "\\'")}', ${p.cost}, ${p.price})"><strong>${p.code}</strong> - ${p.product}<br><small>Price: $${parseFloat(p.price).toFixed(2)} | Stock: ${p.stock}</small></div>`).join('');
-            suggestionsDiv.style.display = 'block';
-          } else {
-            suggestionsDiv.innerHTML = '<div class="suggestion-item">No products found</div>';
-            suggestionsDiv.style.display = 'block';
-          }
-        } catch (error) {
-          console.error('Search error:', error);
+        const searchInput = document.getElementById('productSearchInput');
+        const suggestionsDiv = document.getElementById('searchSuggestions');
+        if (!searchInput || !suggestionsDiv) return;
+        
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm.length < 2) {
+            suggestionsDiv.style.display = 'none';
+            return;
         }
-      }, 300);
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`${API_URL}?action=search_products&branch=${encodeURIComponent(currentBranch)}&search=${encodeURIComponent(searchTerm)}`);
+                const data = await response.json();
+                if (data.status === 'success' && data.results && data.results.length > 0) {
+                    suggestionsDiv.innerHTML = data.results.map(p => `<div class="suggestion-item" onclick="selectProductForStock('${p.code}', '${p.product.replace(/'/g, "\\'")}', ${p.cost}, ${p.price})"><strong>${p.code}</strong> - ${p.product}<br><small>Price: $${parseFloat(p.price).toFixed(2)} | Stock: ${p.stock}</small></div>`).join('');
+                    suggestionsDiv.style.display = 'block';
+                } else {
+                    suggestionsDiv.innerHTML = '<div class="suggestion-item">No products found</div>';
+                    suggestionsDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        }, 300);
     }
     
     function selectProductForStock(code, name, cost, price) {
-      document.getElementById('stockProductCode').value = code;
-      document.getElementById('stockProductName').value = name;
-      document.getElementById('stockCost').value = cost;
-      document.getElementById('stockPrice').value = price;
-      document.getElementById('productSearchInput').value = name;
-      document.getElementById('searchSuggestions').style.display = 'none';
-      calculateProfitPreview();
+        const productCode = document.getElementById('stockProductCode');
+        const productName = document.getElementById('stockProductName');
+        const stockCost = document.getElementById('stockCost');
+        const stockPrice = document.getElementById('stockPrice');
+        const searchInput = document.getElementById('productSearchInput');
+        const suggestions = document.getElementById('searchSuggestions');
+        
+        if (productCode) productCode.value = code;
+        if (productName) productName.value = name;
+        if (stockCost) stockCost.value = cost;
+        if (stockPrice) stockPrice.value = price;
+        if (searchInput) searchInput.value = name;
+        if (suggestions) suggestions.style.display = 'none';
+        calculateProfitPreview();
     }
     
     function calculateProfitPreview() {
-      const cost = parseFloat(document.getElementById('stockCost').value) || 0;
-      const price = parseFloat(document.getElementById('stockPrice').value) || 0;
-      const quantity = parseFloat(document.getElementById('stockQuantity').value) || 0;
-      const gpPerUnit = price - cost;
-      const gpPercentage = price > 0 ? (gpPerUnit / price * 100) : 0;
-      const totalGp = gpPerUnit * quantity;
-      document.getElementById('profitPreview').innerHTML = `<h4>Profit Preview</h4><p><strong>GP per unit:</strong> $${gpPerUnit.toFixed(2)}</p><p><strong>GP Percentage:</strong> ${gpPercentage.toFixed(1)}%</p><p><strong>Total GP:</strong> $${totalGp.toFixed(2)}</p>`;
+        const costInput = document.getElementById('stockCost');
+        const priceInput = document.getElementById('stockPrice');
+        const quantityInput = document.getElementById('stockQuantity');
+        const profitPreview = document.getElementById('profitPreview');
+        
+        const cost = costInput ? (parseFloat(costInput.value) || 0) : 0;
+        const price = priceInput ? (parseFloat(priceInput.value) || 0) : 0;
+        const quantity = quantityInput ? (parseFloat(quantityInput.value) || 0) : 0;
+        const gpPerUnit = price - cost;
+        const gpPercentage = price > 0 ? (gpPerUnit / price * 100) : 0;
+        const totalGp = gpPerUnit * quantity;
+        
+        if (profitPreview) {
+            profitPreview.innerHTML = `<h4>Profit Preview</h4><p><strong>GP per unit:</strong> $${gpPerUnit.toFixed(2)}</p><p><strong>GP Percentage:</strong> ${gpPercentage.toFixed(1)}%</p><p><strong>Total GP:</strong> $${totalGp.toFixed(2)}</p>`;
+        }
     }
     
     function calculateNewProductProfit() {
-      const cost = parseFloat(document.getElementById('newProductCost').value) || 0;
-      const price = parseFloat(document.getElementById('newProductPrice').value) || 0;
-      const stock = parseFloat(document.getElementById('newProductStock').value) || 0;
-      const gpPerUnit = price - cost;
-      const gpPercentage = price > 0 ? (gpPerUnit / price * 100) : 0;
-      const totalGp = gpPerUnit * stock;
-      document.getElementById('newProductProfitPreview').innerHTML = `<h4>Profit Preview</h4><p><strong>GP per unit:</strong> $${gpPerUnit.toFixed(2)}</p><p><strong>GP Percentage:</strong> ${gpPercentage.toFixed(1)}%</p><p><strong>Total GP (initial stock):</strong> $${totalGp.toFixed(2)}</p>`;
+        const costInput = document.getElementById('newProductCost');
+        const priceInput = document.getElementById('newProductPrice');
+        const stockInput = document.getElementById('newProductStock');
+        const profitPreview = document.getElementById('newProductProfitPreview');
+        
+        const cost = costInput ? (parseFloat(costInput.value) || 0) : 0;
+        const price = priceInput ? (parseFloat(priceInput.value) || 0) : 0;
+        const stock = stockInput ? (parseFloat(stockInput.value) || 0) : 0;
+        const gpPerUnit = price - cost;
+        const gpPercentage = price > 0 ? (gpPerUnit / price * 100) : 0;
+        const totalGp = gpPerUnit * stock;
+        
+        if (profitPreview) {
+            profitPreview.innerHTML = `<h4>Profit Preview</h4><p><strong>GP per unit:</strong> $${gpPerUnit.toFixed(2)}</p><p><strong>GP Percentage:</strong> ${gpPercentage.toFixed(1)}%</p><p><strong>Total GP (initial stock):</strong> $${totalGp.toFixed(2)}</p>`;
+        }
     }
     
     async function submitStockAction(action) {
-      const productName = document.getElementById('stockProductName').value;
-      const productCode = document.getElementById('stockProductCode').value;
-      const branch = document.getElementById('stockBranch').value;
-      const cost = parseFloat(document.getElementById('stockCost').value);
-      const price = parseFloat(document.getElementById('stockPrice').value);
-      let quantity = parseFloat(document.getElementById('stockQuantity').value);
-      const reason = document.getElementById('stockReason').value;
-      
-      if (!productName || !productCode) return showAlert('Error', 'Please select a product first');
-      if (isNaN(cost) || cost <= 0) return showAlert('Error', 'Valid cost price is required');
-      if (isNaN(price) || price <= 0) return showAlert('Error', 'Valid selling price is required');
-      if (isNaN(quantity) || quantity <= 0) return showAlert('Error', 'Valid quantity is required');
-      
-      if (action === 'remove') quantity = -Math.abs(quantity);
-      
-      const params = {
-        action: 'update_stock',
-        product: productName,
-        code: productCode,
-        branch: branch,
-        cost: cost,
-        price: price,
-        stock: quantity,
-        reason: reason,
-        cashier: currentUser?.username || 'System'
-      };
-      
-      const receipt_no = generateReceiptNumber(action === 'receive' ? 'RCV' : 'RMV');
-      await processWithSync('update_stock', params, receipt_no);
-      showAlert('Success', `${Math.abs(quantity)} units ${action === 'receive' ? 'added to' : 'removed from'} ${productName} (queued for sync)`);
-      closeModal('stockModal');
-      loadProducts();
+        const productName = document.getElementById('stockProductName');
+        const productCode = document.getElementById('stockProductCode');
+        const branchSelect = document.getElementById('stockBranch');
+        const costInput = document.getElementById('stockCost');
+        const priceInput = document.getElementById('stockPrice');
+        const quantityInput = document.getElementById('stockQuantity');
+        const reasonInput = document.getElementById('stockReason');
+        
+        if (!productName || !productName.value) return showAlert('Error', 'Please select a product first');
+        if (!productCode || !productCode.value) return showAlert('Error', 'Please select a product first');
+        
+        const branch = branchSelect ? branchSelect.value : 'Main';
+        const cost = costInput ? (parseFloat(costInput.value) || 0) : 0;
+        const price = priceInput ? (parseFloat(priceInput.value) || 0) : 0;
+        let quantity = quantityInput ? (parseFloat(quantityInput.value) || 0) : 0;
+        const reason = reasonInput ? reasonInput.value : 'Stock adjustment';
+        
+        if (isNaN(cost) || cost <= 0) return showAlert('Error', 'Valid cost price is required');
+        if (isNaN(price) || price <= 0) return showAlert('Error', 'Valid selling price is required');
+        if (isNaN(quantity) || quantity <= 0) return showAlert('Error', 'Valid quantity is required');
+        
+        if (action === 'remove') quantity = -Math.abs(quantity);
+        
+        const params = {
+            action: 'update_stock',
+            product: productName.value,
+            code: productCode.value,
+            branch: branch,
+            cost: cost,
+            price: price,
+            stock: quantity,
+            reason: reason,
+            cashier: currentUser?.username || 'System'
+        };
+        
+        const receipt_no = generateReceiptNumber(action === 'receive' ? 'RCV' : 'RMV');
+        await processWithSync('update_stock', params, receipt_no);
+        showAlert('Success', `${Math.abs(quantity)} units ${action === 'receive' ? 'added to' : 'removed from'} ${productName.value} (queued for sync)`);
+        closeModal('stockModal');
+        loadProducts();
     }
     
     function openNewProductInModal() {
-      closeModal('stockModal');
-      document.getElementById('newProductForm').reset();
-      document.getElementById('newProductBranch').value = currentBranch;
-      document.getElementById('newProductTax').value = '15.5';
-      document.getElementById('newProductStock').value = '0';
-      calculateNewProductProfit();
-      openModal('addNewProductModal');
+        closeModal('stockModal');
+        const form = document.getElementById('newProductForm');
+        const branchSelect = document.getElementById('newProductBranch');
+        const taxInput = document.getElementById('newProductTax');
+        const stockInput = document.getElementById('newProductStock');
+        
+        if (form) form.reset();
+        if (branchSelect) branchSelect.value = currentBranch;
+        if (taxInput) taxInput.value = '15.5';
+        if (stockInput) stockInput.value = '0';
+        calculateNewProductProfit();
+        openModal('addNewProductModal');
     }
     
     async function addNewProductAndStock() {
-      const productName = document.getElementById('newProductName').value;
-      const branch = document.getElementById('newProductBranch').value;
-      const cost = parseFloat(document.getElementById('newProductCost').value);
-      const price = parseFloat(document.getElementById('newProductPrice').value);
-      const initialStock = parseFloat(document.getElementById('newProductStock').value) || 0;
-      const item = document.getElementById('newProductItem').value;
-      const tax = parseFloat(document.getElementById('newProductTax').value) || 15.5;
-      
-      if (!productName) return showAlert('Error', 'Product name is required');
-      if (isNaN(cost) || cost <= 0) return showAlert('Error', 'Cost price is required and must be greater than 0');
-      if (isNaN(price) || price <= 0) return showAlert('Error', 'Selling price is required and must be greater than 0');
-      
-      const code = 'P' + Date.now().toString().slice(-6);
-      const params = {
-        action: 'add_product',
-        product: productName,
-        code: code,
-        branch: branch,
-        cost: cost,
-        price: price,
-        initial_stock: initialStock,
-        item: item,
-        tax: tax,
-        cashier: currentUser?.username || 'System',
-        reason: 'New product added'
-      };
-      
-      const receipt_no = generateReceiptNumber('NEW');
-      await processWithSync('add_product', params, receipt_no);
-      showAlert('Success', `New product added! Code: ${code} (queued for sync)`);
-      closeModal('addNewProductModal');
-      loadProducts();
+        const productName = document.getElementById('newProductName');
+        const branchSelect = document.getElementById('newProductBranch');
+        const costInput = document.getElementById('newProductCost');
+        const priceInput = document.getElementById('newProductPrice');
+        const stockInput = document.getElementById('newProductStock');
+        const itemSelect = document.getElementById('newProductItem');
+        const taxInput = document.getElementById('newProductTax');
+        
+        if (!productName || !productName.value) return showAlert('Error', 'Product name is required');
+        
+        const branch = branchSelect ? branchSelect.value : 'Main';
+        const cost = costInput ? (parseFloat(costInput.value) || 0) : 0;
+        const price = priceInput ? (parseFloat(priceInput.value) || 0) : 0;
+        const initialStock = stockInput ? (parseFloat(stockInput.value) || 0) : 0;
+        const item = itemSelect ? itemSelect.value : 'each';
+        const tax = taxInput ? (parseFloat(taxInput.value) || 15.5) : 15.5;
+        
+        if (!productName.value) return showAlert('Error', 'Product name is required');
+        if (isNaN(cost) || cost <= 0) return showAlert('Error', 'Cost price is required and must be greater than 0');
+        if (isNaN(price) || price <= 0) return showAlert('Error', 'Selling price is required and must be greater than 0');
+        
+        const code = 'P' + Date.now().toString().slice(-6);
+        const params = {
+            action: 'add_product',
+            product: productName.value,
+            code: code,
+            branch: branch,
+            cost: cost,
+            price: price,
+            initial_stock: initialStock,
+            item: item,
+            tax: tax,
+            cashier: currentUser?.username || 'System',
+            reason: 'New product added'
+        };
+        
+        const receipt_no = generateReceiptNumber('NEW');
+        await processWithSync('add_product', params, receipt_no);
+        showAlert('Success', `New product added! Code: ${code} (queued for sync)`);
+        closeModal('addNewProductModal');
+        loadProducts();
     }
     
     async function viewProductDetails(code) {
-      const branch = document.getElementById('viewBranchSelect').value;
-      showLoading('Loading...');
-      try {
-        const response = await fetch(`${API_URL}?action=get_product_by_code&branch=${encodeURIComponent(branch)}&code=${encodeURIComponent(code)}`);
-        const data = await response.json();
-        if (data.status === 'success' && data.data) {
-          const p = data.data;
-          document.getElementById('productDetailBody').innerHTML = `<p><strong>Code:</strong> ${p.code || '-'}</p><p><strong>Name:</strong> ${p.product || p.Product || '-'}</p><p><strong>Branch:</strong> ${p.branch || branch}</p><p><strong>Cost:</strong> $${parseFloat(p.cost || p.Cost || 0).toFixed(2)}</p><p><strong>Price:</strong> $${parseFloat(p.price || p.Price || 0).toFixed(2)}</p><p><strong>Stock:</strong> ${parseFloat(p.stock || p.Stock || 0)}</p><p><strong>Item Type:</strong> ${p.item || p.Item || 'each'}</p><p><strong>TAX:</strong> ${p.tax || p.TAX || 15.5}%</p>`;
-          openModal('productDetailModal');
-        } else {
-          showAlert('Error', 'Could not load details');
+        const branchSelect = document.getElementById('viewBranchSelect');
+        const branch = branchSelect ? branchSelect.value : 'Main';
+        showLoading('Loading...');
+        try {
+            const response = await fetch(`${API_URL}?action=get_product_by_code&branch=${encodeURIComponent(branch)}&code=${encodeURIComponent(code)}`);
+            const data = await response.json();
+            const detailBody = document.getElementById('productDetailBody');
+            if (data.status === 'success' && data.data && detailBody) {
+                const p = data.data;
+                detailBody.innerHTML = `<p><strong>Code:</strong> ${p.code || '-'}</p><p><strong>Name:</strong> ${p.product || p.Product || '-'}</p><p><strong>Branch:</strong> ${p.branch || branch}</p><p><strong>Cost:</strong> $${parseFloat(p.cost || p.Cost || 0).toFixed(2)}</p><p><strong>Price:</strong> $${parseFloat(p.price || p.Price || 0).toFixed(2)}</p><p><strong>Stock:</strong> ${parseFloat(p.stock || p.Stock || 0)}</p><p><strong>Item Type:</strong> ${p.item || p.Item || 'each'}</p><p><strong>TAX:</strong> ${p.tax || p.TAX || 15.5}%</p>`;
+                openModal('productDetailModal');
+            } else {
+                showAlert('Error', 'Could not load details');
+            }
+        } catch (error) {
+            console.error(error);
+            showAlert('Error', 'Failed to load details');
+        } finally {
+            hideLoading();
         }
-      } catch (error) {
-        console.error(error);
-        showAlert('Error', 'Failed to load details');
-      } finally {
-        hideLoading();
-      }
     }
     
     async function loadStockTakeProducts() {
-      const branch = document.getElementById('stockTakeBranch').value;
-      showLoading('Loading products...');
-      try {
-        const response = await fetch(`${API_URL}?action=json&branch=${encodeURIComponent(branch)}`);
-        const data = await response.json();
-        if (data.status === 'success') {
-          const products = data.data || [];
-          const productMap = new Map();
-          products.forEach(p => {
-            const key = `${p.code}-${p.Product}`;
-            if (!productMap.has(key)) {
-              productMap.set(key, {
-                code: p.code,
-                product: p.Product,
-                expected: 0,
-                price: parseFloat(p.Price) || 0,
-                cost: parseFloat(p.Cost) || 0
-              });
+        const branchSelect = document.getElementById('stockTakeBranch');
+        const branch = branchSelect ? branchSelect.value : 'Main';
+        showLoading('Loading products...');
+        try {
+            const response = await fetch(`${API_URL}?action=json&branch=${encodeURIComponent(branch)}`);
+            const data = await response.json();
+            if (data.status === 'success') {
+                const products = data.data || [];
+                const productMap = new Map();
+                products.forEach(p => {
+                    const key = `${p.code}-${p.Product}`;
+                    if (!productMap.has(key)) {
+                        productMap.set(key, {
+                            code: p.code,
+                            product: p.Product,
+                            expected: 0,
+                            price: parseFloat(p.Price) || 0,
+                            cost: parseFloat(p.Cost) || 0
+                        });
+                    }
+                    productMap.get(key).expected += parseFloat(p.Stock) || 0;
+                });
+                stockTakeProducts = Array.from(productMap.values());
+                stockTakeProducts.forEach(p => {
+                    const key = p.code + '|' + p.product;
+                    if (!stockTakeCounts.has(key)) stockTakeCounts.set(key, '');
+                });
+                renderStockTakeTable();
+            } else {
+                showAlert('Error', 'Failed to load products');
             }
-            productMap.get(key).expected += parseFloat(p.Stock) || 0;
-          });
-          stockTakeProducts = Array.from(productMap.values());
-          stockTakeProducts.forEach(p => {
-            const key = p.code + '|' + p.product;
-            if (!stockTakeCounts.has(key)) stockTakeCounts.set(key, '');
-          });
-          renderStockTakeTable();
-        } else {
-          showAlert('Error', 'Failed to load products');
+        } catch (error) {
+            console.error(error);
+            showAlert('Error', 'Failed to load products');
+        } finally {
+            hideLoading();
         }
-      } catch (error) {
-        console.error(error);
-        showAlert('Error', 'Failed to load products');
-      } finally {
-        hideLoading();
-      }
     }
     
     function renderStockTakeTable() {
-      const tbody = document.getElementById('stockTakeTableBody');
-      const searchTerm = document.getElementById('stockTakeSearch').value.toLowerCase();
-      let filtered = stockTakeProducts;
-      if (searchTerm) {
-        filtered = stockTakeProducts.filter(p => 
-          (p.product && p.product.toLowerCase().includes(searchTerm)) ||
-          (p.code && p.code.toString().toLowerCase().includes(searchTerm))
-        );
-      }
-      if (!filtered.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No products</td></tr>';
-        return;
-      }
-      let totalVariance = 0;
-      let totalValueVariance = 0;
-      const rows = filtered.map(p => {
-        const key = p.code + '|' + p.product;
-        const counted = stockTakeCounts.get(key) || '';
-        const countedNum = counted !== '' ? (parseFloat(counted) || 0) : null;
-        const variance = countedNum !== null ? countedNum - p.expected : null;
-        const valueVariance = variance !== null ? variance * p.price : null;
-        if (variance !== null) { totalVariance += variance; totalValueVariance += valueVariance; }
-        const varianceClass = variance === null ? '' : (variance > 0 ? 'variance-positive' : (variance < 0 ? 'variance-negative' : ''));
-        return `<tr><td>${p.code || '-'}</td><td>${p.product}</td><td>${p.expected}</td><td><input type="number" class="counted-input" data-key="${key}" value="${counted}" onchange="updateCountFromInput(this)" onblur="renderStockTakeTable()"></td><td class="${varianceClass}">${variance !== null ? variance : '-'}</td><td>${valueVariance !== null ? '$' + valueVariance.toFixed(2) : '-'}</td></tr>`;
-      }).join('');
-      const totalRow = `<tr style="background: #f0f4f8; font-weight: bold;"><td colspan="3" style="text-align: right;"><strong>TOTAL:</strong></td><td></td><td class="${totalVariance > 0 ? 'variance-positive' : (totalVariance < 0 ? 'variance-negative' : '')}">${totalVariance}</td><td class="${totalValueVariance > 0 ? 'variance-positive' : (totalValueVariance < 0 ? 'variance-negative' : '')}">$${totalValueVariance.toFixed(2)}</td></tr>`;
-      tbody.innerHTML = rows + totalRow;
+        const tbody = document.getElementById('stockTakeTableBody');
+        const searchInput = document.getElementById('stockTakeSearch');
+        if (!tbody) return;
+        
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        let filtered = stockTakeProducts;
+        if (searchTerm) {
+            filtered = stockTakeProducts.filter(p => 
+                (p.product && p.product.toLowerCase().includes(searchTerm)) ||
+                (p.code && p.code.toString().toLowerCase().includes(searchTerm))
+            );
+        }
+        if (!filtered.length) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No products</td></tr>';
+            return;
+        }
+        let totalVariance = 0;
+        let totalValueVariance = 0;
+        const rows = filtered.map(p => {
+            const key = p.code + '|' + p.product;
+            const counted = stockTakeCounts.get(key) || '';
+            const countedNum = counted !== '' ? (parseFloat(counted) || 0) : null;
+            const variance = countedNum !== null ? countedNum - p.expected : null;
+            const valueVariance = variance !== null ? variance * p.price : null;
+            if (variance !== null) { totalVariance += variance; totalValueVariance += valueVariance; }
+            const varianceClass = variance === null ? '' : (variance > 0 ? 'variance-positive' : (variance < 0 ? 'variance-negative' : ''));
+            return `<tr>
+                <td>${p.code || '-'}</td>
+                <td>${p.product}</td>
+                <td>${p.expected}</td>
+                <td><input type="number" class="counted-input" data-key="${key}" value="${counted}" onchange="updateCountFromInput(this)" onblur="renderStockTakeTable()"></td>
+                <td class="${varianceClass}">${variance !== null ? variance : '-'}</td>
+                <td class="${varianceClass}">${valueVariance !== null ? '$' + valueVariance.toFixed(2) : '-'}</td>
+            </tr>`;
+        }).join('');
+        const totalRow = `<tr style="background: #f0f4f8; font-weight: bold;"><td colspan="3" style="text-align: right;"><strong>TOTAL:</strong></td><td></td><td class="${totalVariance > 0 ? 'variance-positive' : (totalVariance < 0 ? 'variance-negative' : '')}">${totalVariance}</td><td class="${totalValueVariance > 0 ? 'variance-positive' : (totalValueVariance < 0 ? 'variance-negative' : '')}">$${totalValueVariance.toFixed(2)}</td></tr>`;
+        tbody.innerHTML = rows + totalRow;
     }
     
     window.updateCountFromInput = function(input) {
-      const key = input.dataset.key;
-      const val = input.value.trim();
-      if (val === '' || (!isNaN(val) && parseFloat(val) >= 0)) {
-        stockTakeCounts.set(key, val);
-      } else {
-        input.value = stockTakeCounts.get(key) || '';
-      }
+        const key = input.dataset.key;
+        const val = input.value.trim();
+        if (val === '' || (!isNaN(val) && parseFloat(val) >= 0)) {
+            stockTakeCounts.set(key, val);
+        } else {
+            input.value = stockTakeCounts.get(key) || '';
+        }
     };
     
     function filterStockTakeTable() { renderStockTakeTable(); }
+    
     function resetStockTakeCounts() {
-      stockTakeCounts.clear();
-      stockTakeProducts.forEach(p => {
-        const key = p.code + '|' + p.product;
-        stockTakeCounts.set(key, '');
-      });
-      renderStockTakeTable();
+        stockTakeCounts.clear();
+        stockTakeProducts.forEach(p => {
+            const key = p.code + '|' + p.product;
+            stockTakeCounts.set(key, '');
+        });
+        renderStockTakeTable();
     }
     
     async function completeStockTakeBatch() {
-      const branch = document.getElementById('stockTakeBranch').value;
-      const cashierSelect = document.getElementById('stockTakeCashier');
-      const cashier = cashierSelect.value;
-      if (!cashier) return showAlert('Error', 'Please select a cashier');
-      
-      const stockTakeData = [];
-      for (let p of stockTakeProducts) {
-        const key = p.code + '|' + p.product;
-        const counted = stockTakeCounts.get(key);
-        if (counted !== undefined && counted !== '' && parseFloat(counted) !== p.expected) {
-          stockTakeData.push({ product: p.product, code: p.code, counted_stock: parseFloat(counted) || 0 });
+        const branchSelect = document.getElementById('stockTakeBranch');
+        const cashierSelect = document.getElementById('stockTakeCashier');
+        const branch = branchSelect ? branchSelect.value : 'Main';
+        const cashier = cashierSelect ? cashierSelect.value : '';
+        
+        if (!cashier) return showAlert('Error', 'Please select a cashier');
+        
+        const stockTakeData = [];
+        for (let p of stockTakeProducts) {
+            const key = p.code + '|' + p.product;
+            const counted = stockTakeCounts.get(key);
+            if (counted !== undefined && counted !== '' && parseFloat(counted) !== p.expected) {
+                stockTakeData.push({ product: p.product, code: p.code, counted_stock: parseFloat(counted) || 0 });
+            }
         }
-      }
-      if (stockTakeData.length === 0) return showAlert('Info', 'No stock changes detected');
-      
-      const stockTakeId = 'ST' + Date.now();
-      const params = {
-        action: 'stock_take',
-        branch: branch,
-        cashier: cashier,
-        stock_take_id: stockTakeId,
-        stock_take_data: JSON.stringify(stockTakeData)
-      };
-      
-      const receipt_no = generateReceiptNumber('STK');
-      await processWithSync('stock_take', params, receipt_no);
-      showAlert('Success', `Stock take queued for sync (${stockTakeData.length} changes)`);
-      stockTakeCounts.clear();
-      loadStockTakeProducts();
-      loadProducts();
+        if (stockTakeData.length === 0) return showAlert('Info', 'No stock changes detected');
+        
+        const stockTakeId = 'ST' + Date.now();
+        const params = {
+            action: 'stock_take',
+            branch: branch,
+            cashier: cashier,
+            stock_take_id: stockTakeId,
+            stock_take_data: JSON.stringify(stockTakeData)
+        };
+        
+        const receipt_no = generateReceiptNumber('STK');
+        await processWithSync('stock_take', params, receipt_no);
+        showAlert('Success', `Stock take queued for sync (${stockTakeData.length} changes)`);
+        stockTakeCounts.clear();
+        loadStockTakeProducts();
+        loadProducts();
     }
     
     function exportCurrentStockPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('landscape');
-      doc.setFontSize(18);
-      doc.text('Hair Mash Point Of Sale', 14, 22);
-      doc.setFontSize(12);
-      doc.text(`Current Stock Report - ${currentBranch}`, 14, 32);
-      doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 38);
-      const productMap = new Map();
-      currentProducts.forEach(p => {
-        const key = `${p.code}-${p.Product}`;
-        if (!productMap.has(key)) {
-          productMap.set(key, {
-            code: p.code,
-            name: p.Product,
-            cost: parseFloat(p.Cost) || 0,
-            price: parseFloat(p.Price) || 0,
-            stock: 0,
-            item: p.item || 'each',
-            tax: parseFloat(p.TAX) || 15.5
-          });
-        }
-        productMap.get(key).stock += parseFloat(p.Stock) || 0;
-      });
-      const products = Array.from(productMap.values());
-      const tableRows = products.map(p => [p.code || '', p.name || '', `$${p.cost.toFixed(2)}`, `$${p.price.toFixed(2)}`, p.stock.toString(), `$${(p.stock * p.price).toFixed(2)}`, p.item, `${p.tax}%`]);
-      doc.autoTable({ head: [["Code", "Product", "Cost", "Price", "Stock", "Value", "Item", "TAX%"]], body: tableRows, startY: 45, theme: 'striped', headStyles: { fillColor: [0, 51, 102] } });
-      doc.save(`current_stock_${currentBranch}_${new Date().toISOString().split('T')[0]}.pdf`);
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('landscape');
+        doc.setFontSize(18);
+        doc.text('Hair Mash Point Of Sale', 14, 22);
+        doc.setFontSize(12);
+        doc.text(`Current Stock Report - ${currentBranch}`, 14, 32);
+        doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 38);
+        const productMap = new Map();
+        currentProducts.forEach(p => {
+            const key = `${p.code}-${p.Product}`;
+            if (!productMap.has(key)) {
+                productMap.set(key, {
+                    code: p.code,
+                    name: p.Product,
+                    cost: parseFloat(p.Cost) || 0,
+                    price: parseFloat(p.Price) || 0,
+                    stock: 0,
+                    item: p.item || 'each',
+                    tax: parseFloat(p.TAX) || 15.5
+                });
+            }
+            productMap.get(key).stock += parseFloat(p.Stock) || 0;
+        });
+        const products = Array.from(productMap.values());
+        const tableRows = products.map(p => [p.code || '', p.name || '', `$${p.cost.toFixed(2)}`, `$${p.price.toFixed(2)}`, p.stock.toString(), `$${(p.stock * p.price).toFixed(2)}`, p.item, `${p.tax}%`]);
+        doc.autoTable({ head: [["Code", "Product", "Cost", "Price", "Stock", "Value", "Item", "TAX%"]], body: tableRows, startY: 45, theme: 'striped', headStyles: { fillColor: [0, 51, 102] } });
+        doc.save(`current_stock_${currentBranch}_${new Date().toISOString().split('T')[0]}.pdf`);
     }
     
     function exportStockTakePDF() { exportCurrentStockPDF(); }
     
     function exportStockTakeVariancePDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(18);
-      doc.text('Hair Mash Point Of Sale', 14, 22);
-      doc.setFontSize(12);
-      doc.text(`Stock Take Variance Report - ${document.getElementById('stockTakeBranch').value}`, 14, 32);
-      doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 38);
-      const tableRows = [];
-      let totalVariance = 0, totalValueVariance = 0;
-      stockTakeProducts.forEach(p => {
-        const key = p.code + '|' + p.product;
-        const counted = stockTakeCounts.get(key);
-        if (counted !== undefined && counted !== '') {
-          const countedNum = parseFloat(counted) || 0;
-          const variance = countedNum - p.expected;
-          const valueVariance = variance * p.price;
-          totalVariance += variance;
-          totalValueVariance += valueVariance;
-          tableRows.push([p.code || '', p.product || '', p.expected.toString(), countedNum.toString(), variance.toString(), `$${valueVariance.toFixed(2)}`]);
-        }
-      });
-      tableRows.push(['TOTAL', '', '', '', totalVariance.toString(), `$${totalValueVariance.toFixed(2)}`]);
-      doc.autoTable({ head: [["Code", "Product", "Expected", "Counted", "Variance", "Value Variance"]], body: tableRows, startY: 45, theme: 'striped', headStyles: { fillColor: [0, 51, 102] } });
-      doc.save(`stock_variance_${new Date().toISOString().split('T')[0]}.pdf`);
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text('Hair Mash Point Of Sale', 14, 22);
+        doc.setFontSize(12);
+        const branchSelect = document.getElementById('stockTakeBranch');
+        const branch = branchSelect ? branchSelect.value : 'Main';
+        doc.text(`Stock Take Variance Report - ${branch}`, 14, 32);
+        doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 38);
+        const tableRows = [];
+        let totalVariance = 0, totalValueVariance = 0;
+        stockTakeProducts.forEach(p => {
+            const key = p.code + '|' + p.product;
+            const counted = stockTakeCounts.get(key);
+            if (counted !== undefined && counted !== '') {
+                const countedNum = parseFloat(counted) || 0;
+                const variance = countedNum - p.expected;
+                const valueVariance = variance * p.price;
+                totalVariance += variance;
+                totalValueVariance += valueVariance;
+                tableRows.push([p.code || '', p.product || '', p.expected.toString(), countedNum.toString(), variance.toString(), `$${valueVariance.toFixed(2)}`]);
+            }
+        });
+        tableRows.push(['TOTAL', '', '', '', totalVariance.toString(), `$${totalValueVariance.toFixed(2)}`]);
+        doc.autoTable({ head: [["Code", "Product", "Expected", "Counted", "Variance", "Value Variance"]], body: tableRows, startY: 45, theme: 'striped', headStyles: { fillColor: [0, 51, 102] } });
+        doc.save(`stock_variance_${new Date().toISOString().split('T')[0]}.pdf`);
     }
     
     async function loadStockTakeHistory() {
-      const branch = document.getElementById('historyBranch').value;
-      const startDate = document.getElementById('historyStartDate').value;
-      const endDate = document.getElementById('historyEndDate').value;
-      const cashier = document.getElementById('historyCashier').value;
-      showLoading('Loading history...');
-      try {
-        const params = new URLSearchParams({ action: 'get_stock_take_history', branch: branch, start_date: startDate, end_date: endDate });
-        if (cashier) params.append('cashier', cashier);
-        const response = await fetch(`${API_URL}?${params}`);
-        const data = await response.json();
-        if (data.status === 'success') {
-          const tbody = document.getElementById('historyTableBody');
-          if (!data.data || data.data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No records found</td></tr>';
-          } else {
-            tbody.innerHTML = data.data.map(item => `<tr><td>${item.date || ''}</td><td>${item.reason || ''}</td><td>${item.branch || ''}</td><td>${item.cashier || ''}</td><td>${item.product || ''}</td><td>${item.code || ''}</td><td>${item.stock_change || 0}</td><td>$${(item.value_change || 0).toFixed(2)}</td></tr>`).join('');
-          }
-        } else {
-          showAlert('Error', data.message || 'Failed to load history');
+        const branchSelect = document.getElementById('historyBranch');
+        const startDateInput = document.getElementById('historyStartDate');
+        const endDateInput = document.getElementById('historyEndDate');
+        const cashierInput = document.getElementById('historyCashier');
+        
+        const branch = branchSelect ? branchSelect.value : 'Main';
+        const startDate = startDateInput ? startDateInput.value : '';
+        const endDate = endDateInput ? endDateInput.value : '';
+        const cashier = cashierInput ? cashierInput.value : '';
+        
+        showLoading('Loading history...');
+        try {
+            const params = new URLSearchParams({ action: 'get_stock_take_history', branch: branch, start_date: startDate, end_date: endDate });
+            if (cashier) params.append('cashier', cashier);
+            const response = await fetch(`${API_URL}?${params}`);
+            const data = await response.json();
+            const tbody = document.getElementById('historyTableBody');
+            if (tbody) {
+                if (data.status === 'success') {
+                    if (!data.data || data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No records found</td></tr>';
+                    } else {
+                        tbody.innerHTML = data.data.map(item => `<tr>
+                            <td>${item.date || ''}</td>
+                            <td>${item.reason || ''}</td>
+                            <td>${item.branch || ''}</td>
+                            <td>${item.cashier || ''}</td>
+                            <td>${item.product || ''}</td>
+                            <td>${item.code || ''}</td>
+                            <td>${item.stock_change || 0}</td>
+                            <td>$${(item.value_change || 0).toFixed(2)}</td>
+                        </tr>`).join('');
+                    }
+                } else {
+                    showAlert('Error', data.message || 'Failed to load history');
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            showAlert('Error', 'Failed to load history');
+        } finally {
+            hideLoading();
         }
-      } catch (error) {
-        console.error(error);
-        showAlert('Error', 'Failed to load history');
-      } finally {
-        hideLoading();
-      }
     }
     
     function exportStockTakeHistoryPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('landscape');
-      doc.setFontSize(18);
-      doc.text('Hair Mash Point Of Sale', 14, 22);
-      doc.setFontSize(12);
-      doc.text(`Stock Take History - ${document.getElementById('historyBranch').value}`, 14, 32);
-      doc.text(`Period: ${document.getElementById('historyStartDate').value} to ${document.getElementById('historyEndDate').value}`, 14, 38);
-      const table = document.getElementById('historyTable');
-      const headers = [];
-      const headerCells = table.querySelectorAll('thead th');
-      headerCells.forEach(th => headers.push(th.textContent));
-      const rows = [];
-      const bodyRows = table.querySelectorAll('tbody tr');
-      bodyRows.forEach(tr => {
-        const row = [];
-        tr.querySelectorAll('td').forEach(td => row.push(td.textContent));
-        if (row.length === headers.length) rows.push(row);
-      });
-      doc.autoTable({ head: [headers], body: rows, startY: 45, theme: 'striped', headStyles: { fillColor: [0, 51, 102] } });
-      doc.save(`stock_history_${new Date().toISOString().split('T')[0]}.pdf`);
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('landscape');
+        doc.setFontSize(18);
+        doc.text('Hair Mash Point Of Sale', 14, 22);
+        doc.setFontSize(12);
+        const branchSelect = document.getElementById('historyBranch');
+        const startDateInput = document.getElementById('historyStartDate');
+        const endDateInput = document.getElementById('historyEndDate');
+        const branch = branchSelect ? branchSelect.value : 'Main';
+        const startDate = startDateInput ? startDateInput.value : '';
+        const endDate = endDateInput ? endDateInput.value : '';
+        doc.text(`Stock Take History - ${branch}`, 14, 32);
+        doc.text(`Period: ${startDate} to ${endDate}`, 14, 38);
+        const table = document.getElementById('historyTable');
+        if (table) {
+            const headers = [];
+            const headerCells = table.querySelectorAll('thead th');
+            headerCells.forEach(th => headers.push(th.textContent));
+            const rows = [];
+            const bodyRows = table.querySelectorAll('tbody tr');
+            bodyRows.forEach(tr => {
+                const row = [];
+                tr.querySelectorAll('td').forEach(td => row.push(td.textContent));
+                if (row.length === headers.length) rows.push(row);
+            });
+            doc.autoTable({ head: [headers], body: rows, startY: 45, theme: 'striped', headStyles: { fillColor: [0, 51, 102] } });
+        }
+        doc.save(`stock_history_${new Date().toISOString().split('T')[0]}.pdf`);
     }
     
     function showLoading(message) {
-      const overlay = document.getElementById('loadingOverlay');
-      const text = document.getElementById('loadingText');
-      if (overlay) overlay.style.display = 'flex';
-      if (text) text.textContent = message || 'Processing...';
+        const overlay = document.getElementById('loadingOverlay');
+        const text = document.getElementById('loadingText');
+        if (overlay) overlay.style.display = 'flex';
+        if (text) text.textContent = message || 'Processing...';
     }
     
     function hideLoading() {
-      const overlay = document.getElementById('loadingOverlay');
-      if (overlay) overlay.style.display = 'none';
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) overlay.style.display = 'none';
     }
     
     function openModal(modalId) {
-      const modal = document.getElementById(modalId);
-      if (modal) modal.classList.add('show');
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.add('show');
     }
     
     function closeModal(modalId) {
-      const modal = document.getElementById(modalId);
-      if (modal) modal.classList.remove('show');
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.remove('show');
     }
     
     function showAlert(title, message) {
-      document.getElementById('alertTitle').textContent = title;
-      document.getElementById('alertMessage').textContent = message;
-      openModal('alertModal');
+        const alertTitle = document.getElementById('alertTitle');
+        const alertMessage = document.getElementById('alertMessage');
+        if (alertTitle) alertTitle.textContent = title;
+        if (alertMessage) alertMessage.textContent = message;
+        openModal('alertModal');
     }
     
     document.addEventListener('click', function(e) {
-      if (!e.target.closest('#productSearchInput')) {
-        document.getElementById('searchSuggestions').style.display = 'none';
-      }
+        const searchInput = document.getElementById('productSearchInput');
+        const suggestions = document.getElementById('searchSuggestions');
+        if (searchInput && suggestions && !e.target.closest('#productSearchInput')) {
+            suggestions.style.display = 'none';
+        }
     });
     
     // Make functions global
@@ -1853,6 +2016,7 @@
     window.loadStockTakeHistory = loadStockTakeHistory;
     window.exportStockTakeHistoryPDF = exportStockTakeHistoryPDF;
     window.updateCountFromInput = updateCountFromInput;
-  </script>
+    window.getBranchData = function() { return null; }; // Dummy function
+</script>
 </body>
 </html>
