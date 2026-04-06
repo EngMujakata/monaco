@@ -177,6 +177,7 @@
     
     .form-group {
       margin-bottom: 0.5rem;
+      position: relative;
     }
     
     label {
@@ -694,7 +695,8 @@
             </select>
             <button class="btn btn-primary btn-sm" onclick="loadProducts()"><i class="fas fa-sync-alt"></i></button>
             <button class="btn btn-success btn-sm" onclick="exportCurrentStockPDF()"><i class="fas fa-file-pdf"></i></button>
-            <button class="btn btn-warning btn-sm" onclick="openStockModal()"><i class="fas fa-plus-circle"></i> Stock</button>
+            <button class="btn btn-warning btn-sm" onclick="openStockModal('receive')"><i class="fas fa-plus-circle"></i> Receive</button>
+            <button class="btn btn-danger btn-sm" onclick="openStockModal('remove')"><i class="fas fa-minus-circle"></i> Remove</button>
           </div>
         </div>
 
@@ -724,7 +726,8 @@
             <thead>
               <tr><th>Code</th><th>Product</th><th>Cost</th><th>Price</th><th>Stock</th><th>Value</th><th>Type</th><th>TAX</th><th>Actions</th></tr>
             </thead>
-            <tbody id="productsTableBody"><tr><td colspan="9" style="text-align: center;">Loading products...</td></tr></tbody>
+            <tbody id="productsTableBody"><tr><td colspan="9" style="text-align: center;">Loading products...</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -761,8 +764,9 @@
         
         <div class="table-container">
           <table id="stockTakeTable">
-            <thead><tr><th>Code</th><th>Product</th><th>Exp</th><th>Counted</th><th>Var</th><th>Value Var</th></tr></thead>
-            <tbody id="stockTakeTableBody"><tr><td colspan="6" style="text-align: center;">Loading products...</td></tr></tbody>
+            <thead><tr><th>Code</th><th>Product</th><th>Expected</th><th>Counted</th><th>Variance</th><th>Value Variance</th></tr></thead>
+            <tbody id="stockTakeTableBody"><tr><td colspan="6" style="text-align: center;">Loading products...</td></tr>
+            </tbody>
           </table>
         </div>
         
@@ -794,7 +798,8 @@
         <div class="table-container">
           <table id="historyTable">
             <thead><tr><th>Date</th><th>Reason</th><th>Branch</th><th>Cashier</th><th>Product</th><th>Code</th><th>Change</th><th>Value</th></tr></thead>
-            <tbody id="historyTableBody"><tr><td colspan="8" style="text-align: center;">Select filters and click Filter</td></tr></tbody>
+            <tbody id="historyTableBody"><tr><td colspan="8" style="text-align: center;">Select filters and click Filter</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -809,6 +814,7 @@
     <a href="cashup.html" class="footer-item" id="footer-cashup"><i class="fas fa-calculator footer-icon"></i><span>Cashup</span></a>
   </footer>
 
+  <!-- Stock Adjustment Modal -->
   <div id="stockModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -831,14 +837,22 @@
           <div class="form-group"><label>Cost Price</label><input type="number" id="stockCost" step="0.01" min="0" oninput="calculateProfitPreview()"></div>
           <div class="form-group"><label>Selling Price</label><input type="number" id="stockPrice" step="0.01" min="0" oninput="calculateProfitPreview()"></div>
           <div class="form-group"><label>Quantity</label><input type="number" id="stockQuantity" step="1" min="1" value="1" oninput="calculateProfitPreview()"></div>
-          <div class="form-group"><label>Reason</label><input type="text" id="stockReason" value="Stock adjustment"></div>
+          <div class="form-group"><label>Reason</label>
+            <select id="stockReason" class="form-control">
+              <option value="Stock adjustment">Stock adjustment</option>
+              <option value="New stock received">New stock received</option>
+              <option value="Return to supplier">Return to supplier</option>
+              <option value="Damaged goods">Damaged goods</option>
+              <option value="Expired products">Expired products</option>
+              <option value="Lost/Theft">Lost/Theft</option>
+            </select>
+          </div>
           <div class="profit-preview" id="profitPreview"><h4>Profit Preview</h4><p><strong>GP per unit:</strong> $0.00</p><p><strong>GP Percentage:</strong> 0%</p><p><strong>Total GP:</strong> $0.00</p></div>
         </form>
       </div>
       <div class="modal-footer">
         <button class="btn btn-danger btn-sm" onclick="closeModal('stockModal')">Cancel</button>
-        <button class="btn btn-warning btn-sm" id="removeStockBtn" style="display: none;" onclick="submitStockAction('remove')">Remove Stock</button>
-        <button class="btn btn-success btn-sm" id="receiveStockBtn" onclick="submitStockAction('receive')">Receive Stock</button>
+        <button class="btn btn-success btn-sm" id="confirmStockBtn" onclick="submitStockAdjustment()">Confirm</button>
       </div>
     </div>
   </div>
@@ -888,6 +902,7 @@
   <div id="loadingOverlay" class="loading-overlay">
     <div style="text-align: center;"><div class="spinner"></div><div class="loading-text" id="loadingText">Processing...</div></div>
   </div>
+
 <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbxHRLkbRglqCdelnzY4R2D-nX3ZyXSXyP6mEEIf9Twx0tG717QiFEHSWioqw0zv1Wg/exec';
     
@@ -903,12 +918,7 @@
     let stockTakeCounts = new Map();
     let searchTimeout = null;
     let syncInterval = null;
-    
-    // Dummy function to prevent ReferenceError (in case something tries to call it)
-    window.getBranchData = function() {
-        console.warn('getBranchData is an API function, not frontend');
-        return null;
-    };
+    let currentStockAction = 'receive'; // 'receive' or 'remove'
     
     // Initialize IndexedDB
     function initIndexedDB() {
@@ -1149,11 +1159,14 @@
         }
     }
     
-    // Generate unique receipt number
-    function generateReceiptNumber(prefix = 'ACT') {
-        const timestamp = Date.now();
-        const random = Math.floor(Math.random() * 1000);
-        return `${prefix}_${timestamp}_${random}`;
+    // Generate unique receipt number with format: TYPE_BRANCH_DATE_TIME_RANDOM
+    function generateReceiptNumber(prefix, branch) {
+        const now = new Date();
+        const date = now.toISOString().slice(0, 10).replace(/-/g, '');
+        const time = now.toTimeString().slice(0, 8).replace(/:/g, '');
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        const branchCode = (branch || 'MAIN').substring(0, 3).toUpperCase();
+        return `${prefix}_${branchCode}_${date}_${time}_${random}`;
     }
     
     document.addEventListener('DOMContentLoaded', async function() {
@@ -1212,6 +1225,9 @@
             const cashierSelect = document.getElementById('stockTakeCashier');
             if (cashierSelect && data.status === 'success') {
                 cashierSelect.innerHTML = '<option value="">Select Cashier</option>' + (data.cashiers || []).map(c => `<option value="${c}">${c}</option>`).join('');
+                if (currentUser && currentUser.username) {
+                    cashierSelect.value = currentUser.username;
+                }
             }
         } catch (error) {
             console.error('Error loading cashiers:', error);
@@ -1314,7 +1330,7 @@
             return showAlert('Warning', 'Please fill at least one field to update');
         }
         
-        const receipt_no = generateReceiptNumber('UPD');
+        const receipt_no = generateReceiptNumber('UPD', params.branch);
         await processWithSync('update_product', params, receipt_no);
         showAlert('Success', 'Product update queued for sync');
         hideUpdatePanel();
@@ -1427,24 +1443,21 @@
         displayProducts(currentProducts);
     }
     
-    function openStockModal() {
+    function openStockModal(action) {
+        currentStockAction = action;
         const modalTitle = document.getElementById('stockModalTitle');
-        const receiveBtn = document.getElementById('receiveStockBtn');
-        const removeBtn = document.getElementById('removeStockBtn');
-        if (modalTitle) modalTitle.textContent = 'Receive Stock';
-        if (receiveBtn) receiveBtn.style.display = 'inline-flex';
-        if (removeBtn) removeBtn.style.display = 'none';
-        clearStockForm();
-        openModal('stockModal');
-    }
-    
-    function openRemoveStockModal() {
-        const modalTitle = document.getElementById('stockModalTitle');
-        const receiveBtn = document.getElementById('receiveStockBtn');
-        const removeBtn = document.getElementById('removeStockBtn');
-        if (modalTitle) modalTitle.textContent = 'Remove Stock';
-        if (receiveBtn) receiveBtn.style.display = 'none';
-        if (removeBtn) removeBtn.style.display = 'inline-flex';
+        const confirmBtn = document.getElementById('confirmStockBtn');
+        
+        if (action === 'receive') {
+            modalTitle.textContent = 'Receive Stock';
+            confirmBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Receive Stock';
+            confirmBtn.className = 'btn btn-success btn-sm';
+        } else {
+            modalTitle.textContent = 'Remove Stock';
+            confirmBtn.innerHTML = '<i class="fas fa-minus-circle"></i> Remove Stock';
+            confirmBtn.className = 'btn btn-danger btn-sm';
+        }
+        
         clearStockForm();
         openModal('stockModal');
     }
@@ -1551,14 +1564,14 @@
         }
     }
     
-    async function submitStockAction(action) {
+    async function submitStockAdjustment() {
         const productName = document.getElementById('stockProductName');
         const productCode = document.getElementById('stockProductCode');
         const branchSelect = document.getElementById('stockBranch');
         const costInput = document.getElementById('stockCost');
         const priceInput = document.getElementById('stockPrice');
         const quantityInput = document.getElementById('stockQuantity');
-        const reasonInput = document.getElementById('stockReason');
+        const reasonSelect = document.getElementById('stockReason');
         
         if (!productName || !productName.value) return showAlert('Error', 'Please select a product first');
         if (!productCode || !productCode.value) return showAlert('Error', 'Please select a product first');
@@ -1567,13 +1580,16 @@
         const cost = costInput ? (parseFloat(costInput.value) || 0) : 0;
         const price = priceInput ? (parseFloat(priceInput.value) || 0) : 0;
         let quantity = quantityInput ? (parseFloat(quantityInput.value) || 0) : 0;
-        const reason = reasonInput ? reasonInput.value : 'Stock adjustment';
+        const reason = reasonSelect ? reasonSelect.value : 'Stock adjustment';
         
         if (isNaN(cost) || cost <= 0) return showAlert('Error', 'Valid cost price is required');
         if (isNaN(price) || price <= 0) return showAlert('Error', 'Valid selling price is required');
         if (isNaN(quantity) || quantity <= 0) return showAlert('Error', 'Valid quantity is required');
         
-        if (action === 'remove') quantity = -Math.abs(quantity);
+        // For remove action, make quantity negative
+        if (currentStockAction === 'remove') {
+            quantity = -Math.abs(quantity);
+        }
         
         const params = {
             action: 'update_stock',
@@ -1587,9 +1603,11 @@
             cashier: currentUser?.username || 'System'
         };
         
-        const receipt_no = generateReceiptNumber(action === 'receive' ? 'RCV' : 'RMV');
+        const receipt_no = generateReceiptNumber(currentStockAction === 'receive' ? 'RCV' : 'RMV', branch);
         await processWithSync('update_stock', params, receipt_no);
-        showAlert('Success', `${Math.abs(quantity)} units ${action === 'receive' ? 'added to' : 'removed from'} ${productName.value} (queued for sync)`);
+        
+        const actionText = currentStockAction === 'receive' ? 'added to' : 'removed from';
+        showAlert('Success', `${Math.abs(quantity)} units ${actionText} ${productName.value}\nReceipt: ${receipt_no}\n(Queued for sync)`);
         closeModal('stockModal');
         loadProducts();
     }
@@ -1646,9 +1664,9 @@
             reason: 'New product added'
         };
         
-        const receipt_no = generateReceiptNumber('NEW');
+        const receipt_no = generateReceiptNumber('NEW', branch);
         await processWithSync('add_product', params, receipt_no);
-        showAlert('Success', `New product added! Code: ${code} (queued for sync)`);
+        showAlert('Success', `New product added! Code: ${code}\nReceipt: ${receipt_no}\n(Queued for sync)`);
         closeModal('addNewProductModal');
         loadProducts();
     }
@@ -1795,18 +1813,20 @@
         }
         if (stockTakeData.length === 0) return showAlert('Info', 'No stock changes detected');
         
-        const stockTakeId = 'ST' + Date.now();
+        const stockTakeId = generateReceiptNumber('STK', branch);
         const params = {
-            action: 'stock_take',
+            action: 'stock_take_batch',
             branch: branch,
             cashier: cashier,
             stock_take_id: stockTakeId,
-            stock_take_data: JSON.stringify(stockTakeData)
+            stock_take_data: JSON.stringify(stockTakeData),
+            batch_number: 1,
+            total_batches: 1
         };
         
-        const receipt_no = generateReceiptNumber('STK');
-        await processWithSync('stock_take', params, receipt_no);
-        showAlert('Success', `Stock take queued for sync (${stockTakeData.length} changes)`);
+        const receipt_no = generateReceiptNumber('STK', branch);
+        await processWithSync('stock_take_batch', params, receipt_no);
+        showAlert('Success', `Stock take queued for sync (${stockTakeData.length} changes)\nReceipt: ${receipt_no}`);
         stockTakeCounts.clear();
         loadStockTakeProducts();
         loadProducts();
@@ -1998,11 +2018,10 @@
     window.hideUpdatePanel = hideUpdatePanel;
     window.closeModal = closeModal;
     window.openStockModal = openStockModal;
-    window.openRemoveStockModal = openRemoveStockModal;
     window.searchProductsForStock = searchProductsForStock;
     window.selectProductForStock = selectProductForStock;
     window.calculateProfitPreview = calculateProfitPreview;
-    window.submitStockAction = submitStockAction;
+    window.submitStockAdjustment = submitStockAdjustment;
     window.openNewProductInModal = openNewProductInModal;
     window.addNewProductAndStock = addNewProductAndStock;
     window.calculateNewProductProfit = calculateNewProductProfit;
@@ -2016,7 +2035,6 @@
     window.loadStockTakeHistory = loadStockTakeHistory;
     window.exportStockTakeHistoryPDF = exportStockTakeHistoryPDF;
     window.updateCountFromInput = updateCountFromInput;
-    window.getBranchData = function() { return null; }; // Dummy function
 </script>
 </body>
 </html>
