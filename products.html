@@ -40,7 +40,6 @@
       -webkit-tap-highlight-color: transparent;
     }
     
-    /* Header */
     header {
       background: var(--primary);
       color: white;
@@ -99,7 +98,6 @@
       font-size: 0.9rem;
     }
     
-    /* Main Container */
     .container {
       max-width: 1400px;
       margin: 0 auto;
@@ -109,7 +107,6 @@
       width: 100%;
     }
     
-    /* Tabs */
     .tabs {
       display: flex;
       flex-wrap: wrap;
@@ -147,7 +144,6 @@
       display: block;
     }
     
-    /* Cards */
     .card {
       background: white;
       border-radius: 1rem;
@@ -173,7 +169,6 @@
       color: var(--primary);
     }
     
-    /* Forms */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -208,7 +203,6 @@
       box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
     }
     
-    /* Buttons */
     .btn {
       padding: 0.6rem 1rem;
       border: none;
@@ -238,7 +232,6 @@
       transform: scale(0.97);
     }
     
-    /* Search Bar */
     .search-bar {
       display: flex;
       gap: 0.5rem;
@@ -251,7 +244,6 @@
       min-width: 150px;
     }
     
-    /* Table */
     .table-container {
       overflow-x: auto;
       border-radius: 0.5rem;
@@ -291,19 +283,16 @@
       background: #f8f9fa;
     }
     
-    /* Stock indicators */
     .stock-high { color: var(--secondary); font-weight: 600; }
     .stock-medium { color: var(--warning); font-weight: 600; }
     .stock-low { color: var(--danger); font-weight: 600; }
     
-    /* Action buttons */
     .action-btns {
       display: flex;
       gap: 0.2rem;
       flex-wrap: wrap;
     }
     
-    /* Summary Cards */
     .summary-cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -330,7 +319,6 @@
       word-break: break-word;
     }
     
-    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -399,7 +387,6 @@
       padding: 0 0.5rem;
     }
     
-    /* Loading */
     .loading-overlay {
       position: fixed;
       top: 0;
@@ -433,7 +420,6 @@
       font-size: 0.9rem;
     }
     
-    /* Footer */
     footer {
       position: fixed;
       bottom: 0;
@@ -466,11 +452,9 @@
       margin-bottom: 0.1rem;
     }
     
-    /* Variance cell */
     .variance-positive { color: var(--secondary); font-weight: 600; }
     .variance-negative { color: var(--danger); font-weight: 600; }
     
-    /* Stock take table */
     .counted-input {
       width: 70px;
       padding: 0.3rem;
@@ -480,7 +464,6 @@
       border-radius: 0.25rem;
     }
     
-    /* Hidden update panel */
     .update-panel {
       display: none;
       margin-bottom: 0.75rem;
@@ -494,7 +477,6 @@
       display: block;
     }
     
-    /* Branch filter */
     .branch-filter {
       display: flex;
       gap: 0.25rem;
@@ -508,7 +490,6 @@
       font-size: 0.8rem;
     }
     
-    /* Search suggestions */
     .suggestions-list {
       position: absolute;
       background: white;
@@ -531,7 +512,6 @@
       background: #f0f4f8;
     }
     
-    /* Profit display */
     .profit-preview {
       background: #e8f5e9;
       padding: 0.75rem;
@@ -544,102 +524,55 @@
       margin-bottom: 0.5rem;
     }
     
-    /* Info text */
     .text-info {
       color: var(--info);
       font-size: 0.8rem;
       margin-top: 0.5rem;
     }
     
-    /* Touch-friendly improvements */
-    button, .tab, select, input[type="checkbox"], .footer-item {
-      touch-action: manipulation;
+    .sync-status {
+      position: fixed;
+      bottom: 70px;
+      right: 10px;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      z-index: 1000;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      background: var(--primary);
+      color: white;
     }
     
-    /* Better spacing for mobile */
+    .sync-success { background: var(--secondary); }
+    .sync-error { background: var(--danger); }
+    .sync-loading { background: var(--warning); }
+    
     @media (max-width: 768px) {
-      .tabs { 
-        border-radius: 1.5rem; 
-        padding: 0.3rem;
-      }
-      .tab { 
-        padding: 0.5rem 0.2rem; 
-        min-width: 60px; 
-        font-size: 0.7rem;
-      }
-      .summary-value { 
-        font-size: 1.1rem; 
-      }
-      .card {
-        padding: 0.6rem;
-      }
-      .card-title {
-        font-size: 0.95rem;
-      }
-      .btn {
-        padding: 0.5rem 0.7rem;
-        font-size: 0.8rem;
-      }
-      .form-grid {
-        gap: 0.4rem;
-      }
-      input, select {
-        padding: 0.5rem;
-        font-size: 0.9rem;
-      }
-      .header-logo span {
-        font-size: 0.9rem;
-      }
-      .user-info span {
-        display: none;
-      }
+      .tabs { border-radius: 1.5rem; padding: 0.3rem; }
+      .tab { padding: 0.5rem 0.2rem; min-width: 60px; font-size: 0.7rem; }
+      .summary-value { font-size: 1.1rem; }
+      .card { padding: 0.6rem; }
+      .card-title { font-size: 0.95rem; }
+      .btn { padding: 0.5rem 0.7rem; font-size: 0.8rem; }
+      .form-grid { gap: 0.4rem; }
+      input, select { padding: 0.5rem; font-size: 0.9rem; }
+      .header-logo span { font-size: 0.9rem; }
+      .user-info span { display: none; }
     }
     
     @media (max-width: 480px) {
-      .tab {
-        font-size: 0.65rem;
-        padding: 0.4rem 0.1rem;
-        min-width: 50px;
-      }
-      .summary-value {
-        font-size: 1rem;
-      }
-      .summary-label {
-        font-size: 0.65rem;
-      }
-      .footer-item {
-        font-size: 0.55rem;
-      }
-      .footer-icon {
-        font-size: 1rem;
-      }
-      .card-title {
-        font-size: 0.9rem;
-      }
-      .btn-sm {
-        padding: 0.3rem 0.5rem;
-        font-size: 0.7rem;
-      }
+      .tab { font-size: 0.65rem; padding: 0.4rem 0.1rem; min-width: 50px; }
+      .summary-value { font-size: 1rem; }
+      .summary-label { font-size: 0.65rem; }
+      .footer-item { font-size: 0.55rem; }
+      .footer-icon { font-size: 1rem; }
+      .card-title { font-size: 0.9rem; }
+      .btn-sm { padding: 0.3rem 0.5rem; font-size: 0.7rem; }
     }
     
-    /* Landscape mode optimization */
-    @media (max-height: 500px) and (orientation: landscape) {
-      header {
-        padding: 0.3rem 0.5rem;
-      }
-      .tabs {
-        margin-bottom: 0.5rem;
-      }
-      .card {
-        padding: 0.5rem;
-      }
-      footer {
-        padding: 0.1rem 0;
-      }
-    }
-    
-    /* Better touch targets */
-    .tab, .btn, .footer-item, .close, select, input[type="checkbox"] {
+    button, .tab, select, input[type="checkbox"], .footer-item {
+      touch-action: manipulation;
       min-height: 44px;
       min-width: 44px;
     }
@@ -655,34 +588,20 @@
       min-width: 36px;
     }
     
-    /* Improved scrolling */
     .table-container {
       -webkit-overflow-scrolling: touch;
     }
     
-    /* Better modal scrolling */
     .modal-content {
       -webkit-overflow-scrolling: touch;
     }
     
-    /* Fix for iOS input zoom */
     @media screen and (-webkit-min-device-pixel-ratio:0) { 
-      select,
-      textarea,
-      input {
-        font-size: 16px;
-      }
+      select, textarea, input { font-size: 16px; }
     }
     
-    /* Prevent text overflow */
-    td, th {
-      word-break: break-word;
-    }
-    
-    /* Better focus states for touch */
-    .tab:active, .btn:active, .footer-item:active {
-      opacity: 0.7;
-    }
+    td, th { word-break: break-word; }
+    .tab:active, .btn:active, .footer-item:active { opacity: 0.7; }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -702,20 +621,17 @@
   </header>
 
   <div class="container">
-    <!-- Tabs -->
     <div class="tabs">
       <div class="tab active" onclick="switchTab('view')">View</div>
       <div class="tab" onclick="switchTab('stocktake')">Stock Take</div>
       <div class="tab" onclick="switchTab('history')">History</div>
     </div>
 
-    <!-- Hidden Update Product Panel -->
     <div id="updatePanel" class="update-panel">
       <div class="card-header">
         <h2 class="card-title">Update Product Details</h2>
         <button class="btn btn-sm btn-danger" onclick="hideUpdatePanel()"><i class="fas fa-times"></i></button>
       </div>
-      
       <form id="updateProductForm">
         <div class="form-grid">
           <div class="form-group">
@@ -726,32 +642,26 @@
               <option value="Branch3">Branch 3</option>
             </select>
           </div>
-          
           <div class="form-group">
             <label>Product Code *</label>
             <input type="text" id="updateCode" readonly required>
           </div>
-          
           <div class="form-group">
             <label>Product Name</label>
             <input type="text" id="updateProduct" placeholder="New product name">
           </div>
-          
           <div class="form-group">
             <label>Cost</label>
             <input type="number" id="updateCost" step="0.01" min="0" placeholder="New cost">
           </div>
-          
           <div class="form-group">
             <label>Price</label>
             <input type="number" id="updatePrice" step="0.01" min="0" placeholder="New price">
           </div>
-          
           <div class="form-group">
             <label>TAX %</label>
             <input type="number" id="updateTax" step="0.1" placeholder="New tax %">
           </div>
-          
           <div class="form-group">
             <label>Item Type</label>
             <select id="updateItem">
@@ -764,17 +674,13 @@
             </select>
           </div>
         </div>
-        
         <div style="display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
           <button type="button" class="btn btn-danger" onclick="hideUpdatePanel()">Cancel</button>
-          <button type="submit" class="btn btn-warning">
-            <i class="fas fa-edit"></i> Update
-          </button>
+          <button type="submit" class="btn btn-warning"><i class="fas fa-edit"></i> Update</button>
         </div>
       </form>
     </div>
 
-    <!-- View Products Tab -->
     <div id="tab-view" class="tab-content active">
       <div class="card">
         <div class="card-header">
@@ -786,19 +692,12 @@
               <option value="Branch2">Br 2</option>
               <option value="Branch3">Br 3</option>
             </select>
-            <button class="btn btn-primary btn-sm" onclick="loadProducts()">
-              <i class="fas fa-sync-alt"></i>
-            </button>
-            <button class="btn btn-success btn-sm" onclick="exportCurrentStockPDF()">
-              <i class="fas fa-file-pdf"></i>
-            </button>
-            <button class="btn btn-warning btn-sm" onclick="openStockModal()">
-              <i class="fas fa-plus-circle"></i> Stock
-            </button>
+            <button class="btn btn-primary btn-sm" onclick="loadProducts()"><i class="fas fa-sync-alt"></i></button>
+            <button class="btn btn-success btn-sm" onclick="exportCurrentStockPDF()"><i class="fas fa-file-pdf"></i></button>
+            <button class="btn btn-warning btn-sm" onclick="openStockModal()"><i class="fas fa-plus-circle"></i> Stock</button>
           </div>
         </div>
 
-        <!-- Summary Cards -->
         <div class="summary-cards" id="summaryCards">
           <div class="summary-card">
             <div class="summary-label">Total Products</div>
@@ -814,44 +713,23 @@
           </div>
         </div>
 
-        <!-- Search within view -->
         <div class="search-bar">
           <input type="text" id="viewSearch" placeholder="Search by name or code..." onkeyup="filterProducts()">
-          <button class="btn btn-primary btn-sm" onclick="filterProducts()">
-            <i class="fas fa-search"></i>
-          </button>
-          <button class="btn btn-info btn-sm" onclick="clearFilter()">
-            <i class="fas fa-times"></i>
-          </button>
+          <button class="btn btn-primary btn-sm" onclick="filterProducts()"><i class="fas fa-search"></i></button>
+          <button class="btn btn-info btn-sm" onclick="clearFilter()"><i class="fas fa-times"></i></button>
         </div>
 
-        <!-- Products Table (scrollable, shows 10 rows then scroll) -->
         <div class="table-container">
           <table id="productsTable">
             <thead>
-              <tr>
-                <th>Code</th>
-                <th>Product</th>
-                <th>Cost</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Value</th>
-                <th>Type</th>
-                <th>TAX</th>
-                <th>Actions</th>
-              </tr>
+              <tr><th>Code</th><th>Product</th><th>Cost</th><th>Price</th><th>Stock</th><th>Value</th><th>Type</th><th>TAX</th><th>Actions</th></tr>
             </thead>
-            <tbody id="productsTableBody">
-              <tr>
-                <td colspan="9" style="text-align: center;">Loading products...</td>
-              </tr>
-            </tbody>
+            <tbody id="productsTableBody"><tr><td colspan="9" style="text-align: center;">Loading products...</td></tr></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- Stock Take Tab -->
     <div id="tab-stocktake" class="tab-content">
       <div class="card">
         <div class="card-header">
@@ -881,22 +759,10 @@
           </div>
         </div>
         
-        <!-- Stock Take Table (scrollable, shows 10 rows then scroll) -->
         <div class="table-container">
           <table id="stockTakeTable">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Product</th>
-                <th>Exp</th>
-                <th>Counted</th>
-                <th>Var</th>
-                <th>Value Var</th>
-              </tr>
-            </thead>
-            <tbody id="stockTakeTableBody">
-              <tr><td colspan="6" style="text-align: center;">Loading products...</td></tr>
-            </tbody>
+            <thead><tr><th>Code</th><th>Product</th><th>Exp</th><th>Counted</th><th>Var</th><th>Value Var</th></tr></thead>
+            <tbody id="stockTakeTableBody"><tr><td colspan="6" style="text-align: center;">Loading products...</td></tr></tbody>
           </table>
         </div>
         
@@ -908,7 +774,6 @@
       </div>
     </div>
 
-    <!-- Stock Take History Tab -->
     <div id="tab-history" class="tab-content">
       <div class="card">
         <div class="card-header">
@@ -920,45 +785,16 @@
         </div>
         
         <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">
-          <div class="form-group">
-            <label>Branch</label>
-            <select id="historyBranch">
-              <option value="Main">Main</option>
-              <option value="Branch2">Branch 2</option>
-              <option value="Branch3">Branch 3</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Start Date</label>
-            <input type="date" id="historyStartDate">
-          </div>
-          <div class="form-group">
-            <label>End Date</label>
-            <input type="date" id="historyEndDate">
-          </div>
-          <div class="form-group">
-            <label>Cashier</label>
-            <input type="text" id="historyCashier" placeholder="Cashier name">
-          </div>
+          <div class="form-group"><label>Branch</label><select id="historyBranch"><option value="Main">Main</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
+          <div class="form-group"><label>Start Date</label><input type="date" id="historyStartDate"></div>
+          <div class="form-group"><label>End Date</label><input type="date" id="historyEndDate"></div>
+          <div class="form-group"><label>Cashier</label><input type="text" id="historyCashier" placeholder="Cashier name"></div>
         </div>
         
         <div class="table-container">
           <table id="historyTable">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Reason</th>
-                <th>Branch</th>
-                <th>Cashier</th>
-                <th>Product</th>
-                <th>Code</th>
-                <th>Change</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody id="historyTableBody">
-              <tr><td colspan="8" style="text-align: center;">Select filters and click Filter</td></tr>
-            </tbody>
+            <thead><tr><th>Date</th><th>Reason</th><th>Branch</th><th>Cashier</th><th>Product</th><th>Code</th><th>Change</th><th>Value</th></tr></thead>
+            <tbody id="historyTableBody"><tr><td colspan="8" style="text-align: center;">Select filters and click Filter</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -966,29 +802,13 @@
   </div>
 
   <footer>
-    <a href="index.html" class="footer-item" id="footer-home">
-      <i class="fas fa-home footer-icon"></i>
-      <span>Home</span>
-    </a>
-    <a href="products.html" class="footer-item active" id="footer-products">
-      <i class="fas fa-box-open footer-icon"></i>
-      <span>Products</span>
-    </a>
-    <a href="customers.html" class="footer-item" id="footer-customers">
-      <i class="fas fa-users footer-icon"></i>
-      <span>Customers</span>
-    </a>
-    <a href="reports.html" class="footer-item" id="footer-reports">
-      <i class="fas fa-chart-line footer-icon"></i>
-      <span>Reports</span>
-    </a>
-    <a href="cashup.html" class="footer-item" id="footer-cashup">
-      <i class="fas fa-calculator footer-icon"></i>
-      <span>Cashup</span>
-    </a>
+    <a href="index.html" class="footer-item" id="footer-home"><i class="fas fa-home footer-icon"></i><span>Home</span></a>
+    <a href="products.html" class="footer-item active" id="footer-products"><i class="fas fa-box-open footer-icon"></i><span>Products</span></a>
+    <a href="customers.html" class="footer-item" id="footer-customers"><i class="fas fa-users footer-icon"></i><span>Customers</span></a>
+    <a href="reports.html" class="footer-item" id="footer-reports"><i class="fas fa-chart-line footer-icon"></i><span>Reports</span></a>
+    <a href="cashup.html" class="footer-item" id="footer-cashup"><i class="fas fa-calculator footer-icon"></i><span>Cashup</span></a>
   </footer>
 
-  <!-- Stock Action Modal (Receive/Remove Stock) -->
   <div id="stockModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -996,65 +816,23 @@
         <span class="close" onclick="closeModal('stockModal')">&times;</span>
       </div>
       <div class="modal-body">
-        <!-- Search Section -->
         <div class="form-group" style="position: relative;">
           <label>Search Product</label>
           <input type="text" id="productSearchInput" placeholder="Type product name or code..." onkeyup="searchProductsForStock()" autocomplete="off">
           <div id="searchSuggestions" class="suggestions-list" style="display: none;"></div>
         </div>
         
-        <button class="btn btn-info btn-sm" style="width: 100%; margin-bottom: 0.75rem;" onclick="openNewProductInModal()">
-          <i class="fas fa-plus"></i> New Product (not in system)
-        </button>
+        <button class="btn btn-info btn-sm" style="width: 100%; margin-bottom: 0.75rem;" onclick="openNewProductInModal()"><i class="fas fa-plus"></i> New Product (not in system)</button>
         
-        <!-- Product Form (populated when product selected) -->
         <form id="stockActionForm">
-          <div class="form-group">
-            <label>Product Name</label>
-            <input type="text" id="stockProductName" readonly style="background: #f5f5f5;">
-          </div>
-          
-          <div class="form-group">
-            <label>Product Code</label>
-            <input type="text" id="stockProductCode" readonly style="background: #f5f5f5;">
-          </div>
-          
-          <div class="form-group">
-            <label>Branch</label>
-            <select id="stockBranch">
-              <option value="Main">Main</option>
-              <option value="Branch2">Branch 2</option>
-              <option value="Branch3">Branch 3</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label>Cost Price</label>
-            <input type="number" id="stockCost" step="0.01" min="0" oninput="calculateProfitPreview()">
-          </div>
-          
-          <div class="form-group">
-            <label>Selling Price</label>
-            <input type="number" id="stockPrice" step="0.01" min="0" oninput="calculateProfitPreview()">
-          </div>
-          
-          <div class="form-group">
-            <label>Quantity</label>
-            <input type="number" id="stockQuantity" step="1" min="1" value="1" oninput="calculateProfitPreview()">
-          </div>
-          
-          <div class="form-group">
-            <label>Reason</label>
-            <input type="text" id="stockReason" value="Stock adjustment">
-          </div>
-          
-          <!-- Profit Preview -->
-          <div class="profit-preview" id="profitPreview">
-            <h4>Profit Preview</h4>
-            <p><strong>GP per unit:</strong> $0.00</p>
-            <p><strong>GP Percentage:</strong> 0%</p>
-            <p><strong>Total GP:</strong> $0.00</p>
-          </div>
+          <div class="form-group"><label>Product Name</label><input type="text" id="stockProductName" readonly style="background: #f5f5f5;"></div>
+          <div class="form-group"><label>Product Code</label><input type="text" id="stockProductCode" readonly style="background: #f5f5f5;"></div>
+          <div class="form-group"><label>Branch</label><select id="stockBranch"><option value="Main">Main</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
+          <div class="form-group"><label>Cost Price</label><input type="number" id="stockCost" step="0.01" min="0" oninput="calculateProfitPreview()"></div>
+          <div class="form-group"><label>Selling Price</label><input type="number" id="stockPrice" step="0.01" min="0" oninput="calculateProfitPreview()"></div>
+          <div class="form-group"><label>Quantity</label><input type="number" id="stockQuantity" step="1" min="1" value="1" oninput="calculateProfitPreview()"></div>
+          <div class="form-group"><label>Reason</label><input type="text" id="stockReason" value="Stock adjustment"></div>
+          <div class="profit-preview" id="profitPreview"><h4>Profit Preview</h4><p><strong>GP per unit:</strong> $0.00</p><p><strong>GP Percentage:</strong> 0%</p><p><strong>Total GP:</strong> $0.00</p></div>
         </form>
       </div>
       <div class="modal-footer">
@@ -1065,7 +843,6 @@
     </div>
   </div>
 
-  <!-- Add New Product Modal (inside stock modal flow) -->
   <div id="addNewProductModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -1074,51 +851,14 @@
       </div>
       <div class="modal-body">
         <form id="newProductForm">
-          <div class="form-group">
-            <label>Product Name *</label>
-            <input type="text" id="newProductName" required>
-          </div>
-          <div class="form-group">
-            <label>Branch *</label>
-            <select id="newProductBranch" required>
-              <option value="Main">Main</option>
-              <option value="Branch2">Branch 2</option>
-              <option value="Branch3">Branch 3</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Cost Price *</label>
-            <input type="number" id="newProductCost" step="0.01" min="0" required oninput="calculateNewProductProfit()">
-          </div>
-          <div class="form-group">
-            <label>Selling Price *</label>
-            <input type="number" id="newProductPrice" step="0.01" min="0" required oninput="calculateNewProductProfit()">
-          </div>
-          <div class="form-group">
-            <label>Initial Stock *</label>
-            <input type="number" id="newProductStock" step="1" min="0" value="0" required oninput="calculateNewProductProfit()">
-          </div>
-          <div class="form-group">
-            <label>Item Type</label>
-            <select id="newProductItem">
-              <option value="each">Each</option>
-              <option value="kg">Kilogram</option>
-              <option value="litre">Litre</option>
-              <option value="box">Box</option>
-              <option value="pack">Pack</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>TAX %</label>
-            <input type="number" id="newProductTax" step="0.1" value="15.5">
-          </div>
-          
-          <div class="profit-preview" id="newProductProfitPreview">
-            <h4>Profit Preview</h4>
-            <p><strong>GP per unit:</strong> $0.00</p>
-            <p><strong>GP Percentage:</strong> 0%</p>
-            <p><strong>Total GP (initial stock):</strong> $0.00</p>
-          </div>
+          <div class="form-group"><label>Product Name *</label><input type="text" id="newProductName" required></div>
+          <div class="form-group"><label>Branch *</label><select id="newProductBranch" required><option value="Main">Main</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
+          <div class="form-group"><label>Cost Price *</label><input type="number" id="newProductCost" step="0.01" min="0" required oninput="calculateNewProductProfit()"></div>
+          <div class="form-group"><label>Selling Price *</label><input type="number" id="newProductPrice" step="0.01" min="0" required oninput="calculateNewProductProfit()"></div>
+          <div class="form-group"><label>Initial Stock *</label><input type="number" id="newProductStock" step="1" min="0" value="0" required oninput="calculateNewProductProfit()"></div>
+          <div class="form-group"><label>Item Type</label><select id="newProductItem"><option value="each">Each</option><option value="kg">Kilogram</option><option value="litre">Litre</option><option value="box">Box</option><option value="pack">Pack</option></select></div>
+          <div class="form-group"><label>TAX %</label><input type="number" id="newProductTax" step="0.1" value="15.5"></div>
+          <div class="profit-preview" id="newProductProfitPreview"><h4>Profit Preview</h4><p><strong>GP per unit:</strong> $0.00</p><p><strong>GP Percentage:</strong> 0%</p><p><strong>Total GP (initial stock):</strong> $0.00</p></div>
         </form>
         <p class="text-info"><i class="fas fa-info-circle"></i> Product code will be auto-generated</p>
       </div>
@@ -1131,57 +871,302 @@
 
   <div id="productDetailModal" class="modal">
     <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">Product Details</h3>
-        <span class="close" onclick="closeModal('productDetailModal')">&times;</span>
-      </div>
+      <div class="modal-header"><h3 class="modal-title">Product Details</h3><span class="close" onclick="closeModal('productDetailModal')">&times;</span></div>
       <div class="modal-body" id="productDetailBody"></div>
-      <div class="modal-footer">
-        <button class="btn btn-primary btn-sm" onclick="closeModal('productDetailModal')">Close</button>
-      </div>
+      <div class="modal-footer"><button class="btn btn-primary btn-sm" onclick="closeModal('productDetailModal')">Close</button></div>
     </div>
   </div>
 
   <div id="alertModal" class="modal">
     <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title" id="alertTitle">Alert</h3>
-        <span class="close" onclick="closeModal('alertModal')">&times;</span>
-      </div>
+      <div class="modal-header"><h3 class="modal-title" id="alertTitle">Alert</h3><span class="close" onclick="closeModal('alertModal')">&times;</span></div>
       <div class="modal-body" id="alertMessage"></div>
-      <div class="modal-footer">
-        <button class="btn btn-primary btn-sm" onclick="closeModal('alertModal')">OK</button>
-      </div>
+      <div class="modal-footer"><button class="btn btn-primary btn-sm" onclick="closeModal('alertModal')">OK</button></div>
     </div>
   </div>
 
   <div id="loadingOverlay" class="loading-overlay">
-    <div style="text-align: center;">
-      <div class="spinner"></div>
-      <div class="loading-text" id="loadingText">Processing...</div>
-    </div>
+    <div style="text-align: center;"><div class="spinner"></div><div class="loading-text" id="loadingText">Processing...</div></div>
   </div>
 
 <script>
-    // Configuration
     const API_URL = 'https://script.google.com/macros/s/AKfycbxHRLkbRglqCdelnzY4R2D-nX3ZyXSXyP6mEEIf9Twx0tG717QiFEHSWioqw0zv1Wg/exec';
     
-    // Global variables
+    // IndexedDB Setup
+    let db;
+    const DB_NAME = 'HairMashPOS';
+    const DB_VERSION = 2;
+    
     let currentProducts = [];
     let currentBranch = 'Main';
     let currentUser = null;
     let stockTakeProducts = [];
     let stockTakeCounts = new Map();
     let searchTimeout = null;
-    let currentStockAction = 'receive';
+    let syncInterval = null;
     
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
+    // Initialize IndexedDB
+    function initIndexedDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+          db = request.result;
+          resolve(db);
+        };
+        request.onupgradeneeded = (event) => {
+          db = event.target.result;
+          if (!db.objectStoreNames.contains('pending_actions')) {
+            const store = db.createObjectStore('pending_actions', { keyPath: 'id', autoIncrement: true });
+            store.createIndex('action', 'action', { unique: false });
+            store.createIndex('receipt_no', 'receipt_no', { unique: false });
+            store.createIndex('synced', 'synced', { unique: false });
+            store.createIndex('created_at', 'created_at', { unique: false });
+          }
+          if (!db.objectStoreNames.contains('synced_receipts')) {
+            const store = db.createObjectStore('synced_receipts', { keyPath: 'receipt_no' });
+            store.createIndex('synced_at', 'synced_at', { unique: false });
+          }
+        };
+      });
+    }
+    
+    // Save pending action to IndexedDB
+    async function savePendingAction(actionData) {
+      if (!db) await initIndexedDB();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['pending_actions'], 'readwrite');
+        const store = transaction.objectStore('pending_actions');
+        const data = {
+          ...actionData,
+          created_at: new Date().toISOString(),
+          synced: false,
+          retry_count: 0
+        };
+        const request = store.add(data);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+    
+    // Get all pending actions
+    async function getPendingActions() {
+      if (!db) await initIndexedDB();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['pending_actions'], 'readonly');
+        const store = transaction.objectStore('pending_actions');
+        const index = store.index('synced');
+        const request = index.getAll(false);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+    
+    // Mark action as synced
+    async function markActionSynced(id) {
+      if (!db) await initIndexedDB();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['pending_actions'], 'readwrite');
+        const store = transaction.objectStore('pending_actions');
+        const getRequest = store.get(id);
+        getRequest.onsuccess = () => {
+          const action = getRequest.result;
+          if (action) {
+            action.synced = true;
+            action.synced_at = new Date().toISOString();
+            store.put(action);
+          }
+          resolve();
+        };
+        getRequest.onerror = () => reject(getRequest.error);
+      });
+    }
+    
+    // Delete action
+    async function deleteAction(id) {
+      if (!db) await initIndexedDB();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['pending_actions'], 'readwrite');
+        const store = transaction.objectStore('pending_actions');
+        const request = store.delete(id);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    }
+    
+    // Save synced receipt
+    async function saveSyncedReceipt(receipt_no) {
+      if (!db) await initIndexedDB();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['synced_receipts'], 'readwrite');
+        const store = transaction.objectStore('synced_receipts');
+        const request = store.put({ receipt_no: receipt_no, synced_at: new Date().toISOString() });
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    }
+    
+    // Get last 10 synced receipts
+    async function getLast10SyncedReceipts() {
+      if (!db) await initIndexedDB();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['synced_receipts'], 'readonly');
+        const store = transaction.objectStore('synced_receipts');
+        const request = store.getAll();
+        request.onsuccess = () => {
+          let receipts = request.result || [];
+          receipts.sort((a, b) => new Date(b.synced_at) - new Date(a.synced_at));
+          resolve(receipts.slice(0, 10).map(r => r.receipt_no));
+        };
+        request.onerror = () => reject(request.error);
+      });
+    }
+    
+    // Check if receipt exists in last 10 (local + remote)
+    async function checkReceiptExists(receipt_no) {
+      // First check local synced receipts
+      const localReceipts = await getLast10SyncedReceipts();
+      if (localReceipts.includes(receipt_no)) return true;
+      
+      // Then check remote API
+      try {
+        const response = await fetch(`${API_URL}?action=check_receipt_exists&receipt_no=${encodeURIComponent(receipt_no)}`);
+        const data = await response.json();
+        if (data.exists) {
+          await saveSyncedReceipt(receipt_no);
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Error checking receipt:', error);
+        return false;
+      }
+    }
+    
+    // Sync pending actions to API with retry
+    async function syncPendingActions() {
+      if (!navigator.onLine) {
+        showSyncStatus('Offline - waiting for connection', 'sync-error');
+        return;
+      }
+      
+      const pending = await getPendingActions();
+      if (pending.length === 0) return;
+      
+      showSyncStatus(`Syncing ${pending.length} actions...`, 'sync-loading');
+      
+      for (const action of pending) {
+        try {
+          // Check if already synced via receipt
+          if (action.receipt_no) {
+            const exists = await checkReceiptExists(action.receipt_no);
+            if (exists) {
+              await markActionSynced(action.id);
+              await saveSyncedReceipt(action.receipt_no);
+              continue;
+            }
+          }
+          
+          // Build params
+          const params = new URLSearchParams(action.params);
+          params.append('receipt_no', action.receipt_no);
+          
+          // Send to API
+          const response = await fetch(`${API_URL}?${params}`);
+          const data = await response.json();
+          
+          if (data.status === 'success') {
+            await markActionSynced(action.id);
+            await saveSyncedReceipt(action.receipt_no);
+            showSyncStatus(`✓ ${action.action} synced`, 'sync-success');
+          } else if (data.status === 'duplicate') {
+            await markActionSynced(action.id);
+            await saveSyncedReceipt(action.receipt_no);
+            showSyncStatus(`⚠ Duplicate skipped: ${action.receipt_no}`, 'sync-warning');
+          } else {
+            action.retry_count = (action.retry_count || 0) + 1;
+            if (action.retry_count >= 5) {
+              await deleteAction(action.id);
+              showSyncStatus(`✗ Failed: ${action.action} after 5 retries`, 'sync-error');
+            } else {
+              await savePendingAction(action);
+            }
+          }
+        } catch (error) {
+          console.error('Sync error:', error);
+          action.retry_count = (action.retry_count || 0) + 1;
+          if (action.retry_count >= 5) {
+            await deleteAction(action.id);
+          }
+        }
+      }
+      
+      const remaining = await getPendingActions();
+      if (remaining.length === 0) {
+        showSyncStatus('All actions synced!', 'sync-success');
+        setTimeout(() => document.querySelector('.sync-status')?.remove(), 3000);
+      }
+    }
+    
+    // Start auto sync
+    function startAutoSync() {
+      if (syncInterval) clearInterval(syncInterval);
+      syncInterval = setInterval(() => {
+        if (navigator.onLine) syncPendingActions();
+      }, 30000);
+      setTimeout(syncPendingActions, 5000);
+    }
+    
+    // Show sync status
+    function showSyncStatus(message, className) {
+      let statusEl = document.querySelector('.sync-status');
+      if (!statusEl) {
+        statusEl = document.createElement('div');
+        statusEl.className = `sync-status ${className}`;
+        document.body.appendChild(statusEl);
+      }
+      statusEl.textContent = message;
+      statusEl.className = `sync-status ${className}`;
+      if (className === 'sync-success') {
+        setTimeout(() => statusEl.remove(), 3000);
+      }
+    }
+    
+    // Process action with IndexedDB and sync
+    async function processWithSync(action, params, receipt_no) {
+      await savePendingAction({
+        action: action,
+        params: params,
+        receipt_no: receipt_no
+      });
+      
+      if (navigator.onLine) {
+        await syncPendingActions();
+      } else {
+        showSyncStatus('Saved offline - will sync when online', 'sync-loading');
+      }
+    }
+    
+    // Generate unique receipt number
+    function generateReceiptNumber(prefix = 'ACT') {
+      const timestamp = Date.now();
+      const random = Math.floor(Math.random() * 1000);
+      return `${prefix}_${timestamp}_${random}`;
+    }
+    
+    document.addEventListener('DOMContentLoaded', async function() {
+      await initIndexedDB();
       checkLogin();
       loadProducts();
       loadCashiers();
       setupEventListeners();
       setDefaultDates();
+      startAutoSync();
+      
+      window.addEventListener('online', () => {
+        showSyncStatus('Back online - syncing...', 'sync-loading');
+        syncPendingActions();
+      });
     });
     
     function setDefaultDates() {
@@ -1191,17 +1176,14 @@
       document.getElementById('historyEndDate').value = today;
     }
     
-    // Check login
     function checkLogin() {
       const username = localStorage.getItem('username');
       const role = localStorage.getItem('role');
       const branch = localStorage.getItem('branch');
-      
       if (!username || !role || !branch) {
         window.location.href = 'index.html';
         return;
       }
-      
       currentUser = { username, role, branch };
       document.getElementById('welcomeMessage').textContent = username;
       document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
@@ -1217,7 +1199,6 @@
       document.getElementById('stockBranch').value = branch;
     }
     
-    // Load cashiers from sheet
     async function loadCashiers() {
       try {
         const response = await fetch(`${API_URL}?action=get_cashiers`);
@@ -1231,7 +1212,6 @@
       }
     }
     
-    // Setup event listeners
     function setupEventListeners() {
       const updateProductForm = document.getElementById('updateProductForm');
       if (updateProductForm) {
@@ -1250,26 +1230,17 @@
       }
     }
     
-    // Switch tabs
     function switchTab(tabName) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      
       const tab = document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`);
       if (tab) tab.classList.add('active');
-      
       const tabContent = document.getElementById(`tab-${tabName}`);
       if (tabContent) tabContent.classList.add('active');
-      
-      if (tabName === 'stocktake') {
-        loadStockTakeProducts();
-      }
-      if (tabName === 'history') {
-        loadStockTakeHistory();
-      }
+      if (tabName === 'stocktake') loadStockTakeProducts();
+      if (tabName === 'history') loadStockTakeHistory();
     }
     
-    // Show/hide update panel
     function showUpdatePanel(code) {
       document.getElementById('updatePanel').classList.add('show');
       document.getElementById('updateCode').value = code;
@@ -1282,7 +1253,6 @@
       document.getElementById('updateProductForm').reset();
     }
     
-    // Fetch product details for update
     async function fetchProductForUpdate(code) {
       showLoading('Fetching product...');
       try {
@@ -1306,54 +1276,36 @@
       }
     }
     
-    // Update product
     async function updateProduct() {
-      const params = new URLSearchParams({
+      const params = {
         action: 'update_product',
         old_code: document.getElementById('updateCode').value,
         branch: document.getElementById('updateBranch').value
-      });
+      };
+      if (document.getElementById('updateProduct').value) params.product = document.getElementById('updateProduct').value;
+      if (document.getElementById('updateCost').value) params.cost = document.getElementById('updateCost').value;
+      if (document.getElementById('updatePrice').value) params.price = document.getElementById('updatePrice').value;
+      if (document.getElementById('updateTax').value) params.tax = document.getElementById('updateTax').value;
+      if (document.getElementById('updateItem').value) params.item = document.getElementById('updateItem').value;
       
-      if (document.getElementById('updateProduct').value) params.append('product', document.getElementById('updateProduct').value);
-      if (document.getElementById('updateCost').value) params.append('cost', document.getElementById('updateCost').value);
-      if (document.getElementById('updatePrice').value) params.append('price', document.getElementById('updatePrice').value);
-      if (document.getElementById('updateTax').value) params.append('tax', document.getElementById('updateTax').value);
-      if (document.getElementById('updateItem').value) params.append('item', document.getElementById('updateItem').value);
-      
-      if (params.toString().split('&').length <= 2) {
+      if (Object.keys(params).length <= 2) {
         return showAlert('Warning', 'Please fill at least one field to update');
       }
       
-      showLoading('Updating...');
-      try {
-        const response = await fetch(`${API_URL}?${params}`);
-        const data = await response.json();
-        if (data.status === 'success') {
-          showAlert('Success', 'Product updated!');
-          hideUpdatePanel();
-          loadProducts();
-        } else {
-          showAlert('Error', data.message || 'Update failed');
-        }
-      } catch (error) {
-        console.error(error);
-        showAlert('Error', 'Update failed');
-      } finally {
-        hideLoading();
-      }
+      const receipt_no = generateReceiptNumber('UPD');
+      await processWithSync('update_product', params, receipt_no);
+      showAlert('Success', 'Product update queued for sync');
+      hideUpdatePanel();
+      loadProducts();
     }
     
-    // Load products for view tab
     async function loadProducts() {
       const branch = document.getElementById('viewBranchSelect').value;
       currentBranch = branch;
-      
       showLoading('Loading products...');
-      
       try {
         const response = await fetch(`${API_URL}?action=json&branch=${encodeURIComponent(branch)}`);
         const data = await response.json();
-        
         if (data.status === 'success') {
           currentProducts = data.data || [];
           displayProducts(currentProducts);
@@ -1369,10 +1321,8 @@
       }
     }
     
-    // Display products
     function displayProducts(products) {
       const tbody = document.getElementById('productsTableBody');
-      
       if (!products || !products.length) {
         tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No products found</td></tr>';
         return;
@@ -1389,14 +1339,10 @@
             price: parseFloat(p.Price) || 0,
             stock: 0,
             item: p.item || 'each',
-            tax: parseFloat(p.TAX) || 15.5,
-            rows: []
+            tax: parseFloat(p.TAX) || 15.5
           });
         }
-        const product = productMap.get(key);
-        const stockQty = parseFloat(p.Stock) || 0;
-        product.stock += stockQty;
-        product.rows.push(p);
+        productMap.get(key).stock += parseFloat(p.Stock) || 0;
       });
       
       const aggregated = Array.from(productMap.values());
@@ -1404,33 +1350,10 @@
       tbody.innerHTML = aggregated.map(p => {
         const value = p.stock * p.price;
         const stockClass = p.stock > 10 ? 'stock-high' : p.stock > 3 ? 'stock-medium' : 'stock-low';
-        
-        return `
-          <tr>
-            <td><strong>${p.code || '-'}</strong></td>
-            <td>${p.name}</td>
-            <td>$${p.cost.toFixed(2)}</td>
-            <td>$${p.price.toFixed(2)}</td>
-            <td class="${stockClass}">${p.stock}</td>
-            <td>$${value.toFixed(2)}</td>
-            <td>${p.item}</td>
-            <td>${p.tax}%</td>
-            <td>
-              <div class="action-btns">
-                <button class="btn btn-info btn-sm" onclick="viewProductDetails('${p.code}')" title="View">
-                  <i class="fas fa-eye"></i>
-                </button>
-                <button class="btn btn-warning btn-sm" onclick="showUpdatePanel('${p.code}')" title="Edit">
-                  <i class="fas fa-edit"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
+        return `<tr><td><strong>${p.code || '-'}</strong></td><td>${p.name}</td><td>$${p.cost.toFixed(2)}</td><td>$${p.price.toFixed(2)}</td><td class="${stockClass}">${p.stock}</td><td>$${value.toFixed(2)}</td><td>${p.item}</td><td>${p.tax}%</td><td><div class="action-btns"><button class="btn btn-info btn-sm" onclick="viewProductDetails('${p.code}')" title="View"><i class="fas fa-eye"></i></button><button class="btn btn-warning btn-sm" onclick="showUpdatePanel('${p.code}')" title="Edit"><i class="fas fa-edit"></i></button></div></td></tr>`;
       }).join('');
     }
     
-    // Update summary
     function updateSummary(summary) {
       if (summary) {
         document.getElementById('totalProducts').textContent = summary.total_products || 0;
@@ -1439,7 +1362,6 @@
       }
     }
     
-    // Filter products in view
     function filterProducts() {
       const searchTerm = document.getElementById('viewSearch').value.toLowerCase();
       if (!searchTerm) return displayProducts(currentProducts);
@@ -1455,21 +1377,10 @@
       displayProducts(currentProducts);
     }
     
-    // Stock Modal Functions
     function openStockModal() {
       document.getElementById('stockModalTitle').textContent = 'Receive Stock';
       document.getElementById('receiveStockBtn').style.display = 'inline-flex';
       document.getElementById('removeStockBtn').style.display = 'none';
-      currentStockAction = 'receive';
-      clearStockForm();
-      openModal('stockModal');
-    }
-    
-    function openRemoveStockModal() {
-      document.getElementById('stockModalTitle').textContent = 'Remove Stock';
-      document.getElementById('receiveStockBtn').style.display = 'none';
-      document.getElementById('removeStockBtn').style.display = 'inline-flex';
-      currentStockAction = 'remove';
       clearStockForm();
       openModal('stockModal');
     }
@@ -1480,35 +1391,26 @@
       document.getElementById('stockCost').value = '';
       document.getElementById('stockPrice').value = '';
       document.getElementById('stockQuantity').value = '1';
-      document.getElementById('stockReason').value = currentStockAction === 'receive' ? 'Stock receiving' : 'Stock removal';
+      document.getElementById('stockReason').value = 'Stock adjustment';
       document.getElementById('productSearchInput').value = '';
       document.getElementById('searchSuggestions').style.display = 'none';
       calculateProfitPreview();
     }
     
-    // Search products for stock modal
     async function searchProductsForStock() {
       const searchTerm = document.getElementById('productSearchInput').value.trim();
       const suggestionsDiv = document.getElementById('searchSuggestions');
-      
       if (searchTerm.length < 2) {
         suggestionsDiv.style.display = 'none';
         return;
       }
-      
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(async () => {
         try {
           const response = await fetch(`${API_URL}?action=search_products&branch=${encodeURIComponent(currentBranch)}&search=${encodeURIComponent(searchTerm)}`);
           const data = await response.json();
-          
           if (data.status === 'success' && data.results && data.results.length > 0) {
-            suggestionsDiv.innerHTML = data.results.map(p => `
-              <div class="suggestion-item" onclick="selectProductForStock('${p.code}', '${p.product.replace(/'/g, "\\'")}', ${p.cost}, ${p.price})">
-                <strong>${p.code}</strong> - ${p.product}<br>
-                <small>Price: $${parseFloat(p.price).toFixed(2)} | Stock: ${p.stock}</small>
-              </div>
-            `).join('');
+            suggestionsDiv.innerHTML = data.results.map(p => `<div class="suggestion-item" onclick="selectProductForStock('${p.code}', '${p.product.replace(/'/g, "\\'")}', ${p.cost}, ${p.price})"><strong>${p.code}</strong> - ${p.product}<br><small>Price: $${parseFloat(p.price).toFixed(2)} | Stock: ${p.stock}</small></div>`).join('');
             suggestionsDiv.style.display = 'block';
           } else {
             suggestionsDiv.innerHTML = '<div class="suggestion-item">No products found</div>';
@@ -1534,34 +1436,20 @@
       const cost = parseFloat(document.getElementById('stockCost').value) || 0;
       const price = parseFloat(document.getElementById('stockPrice').value) || 0;
       const quantity = parseFloat(document.getElementById('stockQuantity').value) || 0;
-      
       const gpPerUnit = price - cost;
       const gpPercentage = price > 0 ? (gpPerUnit / price * 100) : 0;
       const totalGp = gpPerUnit * quantity;
-      
-      document.getElementById('profitPreview').innerHTML = `
-        <h4>Profit Preview</h4>
-        <p><strong>GP per unit:</strong> $${gpPerUnit.toFixed(2)}</p>
-        <p><strong>GP Percentage:</strong> ${gpPercentage.toFixed(1)}%</p>
-        <p><strong>Total GP:</strong> $${totalGp.toFixed(2)}</p>
-      `;
+      document.getElementById('profitPreview').innerHTML = `<h4>Profit Preview</h4><p><strong>GP per unit:</strong> $${gpPerUnit.toFixed(2)}</p><p><strong>GP Percentage:</strong> ${gpPercentage.toFixed(1)}%</p><p><strong>Total GP:</strong> $${totalGp.toFixed(2)}</p>`;
     }
     
     function calculateNewProductProfit() {
       const cost = parseFloat(document.getElementById('newProductCost').value) || 0;
       const price = parseFloat(document.getElementById('newProductPrice').value) || 0;
       const stock = parseFloat(document.getElementById('newProductStock').value) || 0;
-      
       const gpPerUnit = price - cost;
       const gpPercentage = price > 0 ? (gpPerUnit / price * 100) : 0;
       const totalGp = gpPerUnit * stock;
-      
-      document.getElementById('newProductProfitPreview').innerHTML = `
-        <h4>Profit Preview</h4>
-        <p><strong>GP per unit:</strong> $${gpPerUnit.toFixed(2)}</p>
-        <p><strong>GP Percentage:</strong> ${gpPercentage.toFixed(1)}%</p>
-        <p><strong>Total GP (initial stock):</strong> $${totalGp.toFixed(2)}</p>
-      `;
+      document.getElementById('newProductProfitPreview').innerHTML = `<h4>Profit Preview</h4><p><strong>GP per unit:</strong> $${gpPerUnit.toFixed(2)}</p><p><strong>GP Percentage:</strong> ${gpPercentage.toFixed(1)}%</p><p><strong>Total GP (initial stock):</strong> $${totalGp.toFixed(2)}</p>`;
     }
     
     async function submitStockAction(action) {
@@ -1573,28 +1461,14 @@
       let quantity = parseFloat(document.getElementById('stockQuantity').value);
       const reason = document.getElementById('stockReason').value;
       
-      if (!productName || !productCode) {
-        return showAlert('Error', 'Please select a product first');
-      }
+      if (!productName || !productCode) return showAlert('Error', 'Please select a product first');
+      if (isNaN(cost) || cost <= 0) return showAlert('Error', 'Valid cost price is required');
+      if (isNaN(price) || price <= 0) return showAlert('Error', 'Valid selling price is required');
+      if (isNaN(quantity) || quantity <= 0) return showAlert('Error', 'Valid quantity is required');
       
-      if (isNaN(cost) || cost <= 0) {
-        return showAlert('Error', 'Valid cost price is required');
-      }
+      if (action === 'remove') quantity = -Math.abs(quantity);
       
-      if (isNaN(price) || price <= 0) {
-        return showAlert('Error', 'Valid selling price is required');
-      }
-      
-      if (isNaN(quantity) || quantity <= 0) {
-        return showAlert('Error', 'Valid quantity is required');
-      }
-      
-      // For remove action, make quantity negative
-      if (action === 'remove') {
-        quantity = -Math.abs(quantity);
-      }
-      
-      const params = new URLSearchParams({
+      const params = {
         action: 'update_stock',
         product: productName,
         code: productCode,
@@ -1603,30 +1477,16 @@
         price: price,
         stock: quantity,
         reason: reason,
-        cashier: currentUser?.username || 'System',
-        receipt_no: `STK_${Date.now()}`
-      });
+        cashier: currentUser?.username || 'System'
+      };
       
-      showLoading('Processing...');
-      try {
-        const response = await fetch(`${API_URL}?${params}`);
-        const data = await response.json();
-        if (data.status === 'success') {
-          showAlert('Success', `${Math.abs(quantity)} units ${action === 'receive' ? 'added to' : 'removed from'} ${productName}`);
-          closeModal('stockModal');
-          loadProducts();
-        } else {
-          showAlert('Error', data.message || 'Action failed');
-        }
-      } catch (error) {
-        console.error(error);
-        showAlert('Error', 'Action failed');
-      } finally {
-        hideLoading();
-      }
+      const receipt_no = generateReceiptNumber(action === 'receive' ? 'RCV' : 'RMV');
+      await processWithSync('update_stock', params, receipt_no);
+      showAlert('Success', `${Math.abs(quantity)} units ${action === 'receive' ? 'added to' : 'removed from'} ${productName} (queued for sync)`);
+      closeModal('stockModal');
+      loadProducts();
     }
     
-    // New product in modal flow
     function openNewProductInModal() {
       closeModal('stockModal');
       document.getElementById('newProductForm').reset();
@@ -1646,21 +1506,12 @@
       const item = document.getElementById('newProductItem').value;
       const tax = parseFloat(document.getElementById('newProductTax').value) || 15.5;
       
-      if (!productName) {
-        return showAlert('Error', 'Product name is required');
-      }
-      
-      if (isNaN(cost) || cost <= 0) {
-        return showAlert('Error', 'Cost price is required and must be greater than 0');
-      }
-      
-      if (isNaN(price) || price <= 0) {
-        return showAlert('Error', 'Selling price is required and must be greater than 0');
-      }
+      if (!productName) return showAlert('Error', 'Product name is required');
+      if (isNaN(cost) || cost <= 0) return showAlert('Error', 'Cost price is required and must be greater than 0');
+      if (isNaN(price) || price <= 0) return showAlert('Error', 'Selling price is required and must be greater than 0');
       
       const code = 'P' + Date.now().toString().slice(-6);
-      
-      const params = new URLSearchParams({
+      const params = {
         action: 'add_product',
         product: productName,
         code: code,
@@ -1672,41 +1523,15 @@
         tax: tax,
         cashier: currentUser?.username || 'System',
         reason: 'New product added'
-      });
+      };
       
-      showLoading('Adding product...');
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: params
-        });
-        const data = await response.json();
-        if (data.status === 'success') {
-          showAlert('Success', `New product added! Code: ${code}`);
-          closeModal('addNewProductModal');
-          loadProducts();
-          
-          // Re-open stock modal with the new product selected
-          setTimeout(() => {
-            document.getElementById('stockProductCode').value = code;
-            document.getElementById('stockProductName').value = productName;
-            document.getElementById('stockCost').value = cost;
-            document.getElementById('stockPrice').value = price;
-            document.getElementById('stockQuantity').value = '1';
-            openModal('stockModal');
-          }, 500);
-        } else {
-          showAlert('Error', data.message || 'Failed to add product');
-        }
-      } catch (error) {
-        console.error(error);
-        showAlert('Error', 'Failed to add product');
-      } finally {
-        hideLoading();
-      }
+      const receipt_no = generateReceiptNumber('NEW');
+      await processWithSync('add_product', params, receipt_no);
+      showAlert('Success', `New product added! Code: ${code} (queued for sync)`);
+      closeModal('addNewProductModal');
+      loadProducts();
     }
     
-    // View details
     async function viewProductDetails(code) {
       const branch = document.getElementById('viewBranchSelect').value;
       showLoading('Loading...');
@@ -1715,16 +1540,7 @@
         const data = await response.json();
         if (data.status === 'success' && data.data) {
           const p = data.data;
-          document.getElementById('productDetailBody').innerHTML = `
-            <p><strong>Code:</strong> ${p.code || '-'}</p>
-            <p><strong>Name:</strong> ${p.product || p.Product || '-'}</p>
-            <p><strong>Branch:</strong> ${p.branch || branch}</p>
-            <p><strong>Cost:</strong> $${parseFloat(p.cost || p.Cost || 0).toFixed(2)}</p>
-            <p><strong>Price:</strong> $${parseFloat(p.price || p.Price || 0).toFixed(2)}</p>
-            <p><strong>Stock:</strong> ${parseFloat(p.stock || p.Stock || 0)}</p>
-            <p><strong>Item Type:</strong> ${p.item || p.Item || 'each'}</p>
-            <p><strong>TAX:</strong> ${p.tax || p.TAX || 15.5}%</p>
-          `;
+          document.getElementById('productDetailBody').innerHTML = `<p><strong>Code:</strong> ${p.code || '-'}</p><p><strong>Name:</strong> ${p.product || p.Product || '-'}</p><p><strong>Branch:</strong> ${p.branch || branch}</p><p><strong>Cost:</strong> $${parseFloat(p.cost || p.Cost || 0).toFixed(2)}</p><p><strong>Price:</strong> $${parseFloat(p.price || p.Price || 0).toFixed(2)}</p><p><strong>Stock:</strong> ${parseFloat(p.stock || p.Stock || 0)}</p><p><strong>Item Type:</strong> ${p.item || p.Item || 'each'}</p><p><strong>TAX:</strong> ${p.tax || p.TAX || 15.5}%</p>`;
           openModal('productDetailModal');
         } else {
           showAlert('Error', 'Could not load details');
@@ -1737,7 +1553,6 @@
       }
     }
     
-    // Stock Take functions with BATCH method
     async function loadStockTakeProducts() {
       const branch = document.getElementById('stockTakeBranch').value;
       showLoading('Loading products...');
@@ -1780,7 +1595,6 @@
     function renderStockTakeTable() {
       const tbody = document.getElementById('stockTakeTableBody');
       const searchTerm = document.getElementById('stockTakeSearch').value.toLowerCase();
-      
       let filtered = stockTakeProducts;
       if (searchTerm) {
         filtered = stockTakeProducts.filter(p => 
@@ -1788,67 +1602,37 @@
           (p.code && p.code.toString().toLowerCase().includes(searchTerm))
         );
       }
-      
       if (!filtered.length) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No products</td></tr>';
         return;
       }
-      
       let totalVariance = 0;
       let totalValueVariance = 0;
-      
       const rows = filtered.map(p => {
         const key = p.code + '|' + p.product;
         const counted = stockTakeCounts.get(key) || '';
         const countedNum = counted !== '' ? (parseFloat(counted) || 0) : null;
         const variance = countedNum !== null ? countedNum - p.expected : null;
         const valueVariance = variance !== null ? variance * p.price : null;
-        
-        if (variance !== null) {
-          totalVariance += variance;
-          totalValueVariance += valueVariance;
-        }
-        
+        if (variance !== null) { totalVariance += variance; totalValueVariance += valueVariance; }
         const varianceClass = variance === null ? '' : (variance > 0 ? 'variance-positive' : (variance < 0 ? 'variance-negative' : ''));
-        
-        return `
-          <tr>
-            <td>${p.code || '-'}</td>
-            <td>${p.product}</td>
-            <td>${p.expected}</td>
-            <td><input type="number" class="counted-input" data-key="${key}" value="${counted}" onchange="updateCountFromInput(this)" onblur="renderStockTakeTable()"></td>
-            <td class="${varianceClass}">${variance !== null ? variance : '-'}</td>
-            <td>${valueVariance !== null ? '$' + valueVariance.toFixed(2) : '-'}</td>
-          </tr>
-        `;
+        return `<tr><td>${p.code || '-'}</td><td>${p.product}</td><td>${p.expected}</td><td><input type="number" class="counted-input" data-key="${key}" value="${counted}" onchange="updateCountFromInput(this)" onblur="renderStockTakeTable()"></td><td class="${varianceClass}">${variance !== null ? variance : '-'}</td><td>${valueVariance !== null ? '$' + valueVariance.toFixed(2) : '-'}</td></tr>`;
       }).join('');
-      
-      const totalRow = `
-        <tr style="background: #f0f4f8; font-weight: bold;">
-          <td colspan="3" style="text-align: right;"><strong>TOTAL:</strong></td>
-          <td></td>
-          <td class="${totalVariance > 0 ? 'variance-positive' : (totalVariance < 0 ? 'variance-negative' : '')}">${totalVariance}</td>
-          <td class="${totalValueVariance > 0 ? 'variance-positive' : (totalValueVariance < 0 ? 'variance-negative' : '')}">$${totalValueVariance.toFixed(2)}</td>
-        </tr>
-      `;
-      
+      const totalRow = `<tr style="background: #f0f4f8; font-weight: bold;"><td colspan="3" style="text-align: right;"><strong>TOTAL:</strong></td><td></td><td class="${totalVariance > 0 ? 'variance-positive' : (totalVariance < 0 ? 'variance-negative' : '')}">${totalVariance}</td><td class="${totalValueVariance > 0 ? 'variance-positive' : (totalValueVariance < 0 ? 'variance-negative' : '')}">$${totalValueVariance.toFixed(2)}</td></tr>`;
       tbody.innerHTML = rows + totalRow;
     }
     
     window.updateCountFromInput = function(input) {
       const key = input.dataset.key;
       const val = input.value.trim();
-      if (val === '' || !isNaN(val) && parseFloat(val) >= 0) {
+      if (val === '' || (!isNaN(val) && parseFloat(val) >= 0)) {
         stockTakeCounts.set(key, val);
       } else {
         input.value = stockTakeCounts.get(key) || '';
       }
     };
     
-    function filterStockTakeTable() {
-      renderStockTakeTable();
-    }
-    
+    function filterStockTakeTable() { renderStockTakeTable(); }
     function resetStockTakeCounts() {
       stockTakeCounts.clear();
       stockTakeProducts.forEach(p => {
@@ -1858,76 +1642,47 @@
       renderStockTakeTable();
     }
     
-    // BATCH stock take completion - sends all adjustments in ONE request
     async function completeStockTakeBatch() {
       const branch = document.getElementById('stockTakeBranch').value;
       const cashierSelect = document.getElementById('stockTakeCashier');
       const cashier = cashierSelect.value;
-      
-      if (!cashier) {
-        return showAlert('Error', 'Please select a cashier');
-      }
+      if (!cashier) return showAlert('Error', 'Please select a cashier');
       
       const stockTakeData = [];
       for (let p of stockTakeProducts) {
         const key = p.code + '|' + p.product;
         const counted = stockTakeCounts.get(key);
         if (counted !== undefined && counted !== '' && parseFloat(counted) !== p.expected) {
-          stockTakeData.push({
-            product: p.product,
-            code: p.code,
-            counted_stock: parseFloat(counted) || 0
-          });
+          stockTakeData.push({ product: p.product, code: p.code, counted_stock: parseFloat(counted) || 0 });
         }
       }
-      
-      if (stockTakeData.length === 0) {
-        return showAlert('Info', 'No stock changes detected');
-      }
+      if (stockTakeData.length === 0) return showAlert('Info', 'No stock changes detected');
       
       const stockTakeId = 'ST' + Date.now();
+      const params = {
+        action: 'stock_take',
+        branch: branch,
+        cashier: cashier,
+        stock_take_id: stockTakeId,
+        stock_take_data: JSON.stringify(stockTakeData)
+      };
       
-      showLoading('Processing stock take batch...');
-      try {
-        // Send ALL adjustments in ONE batch request
-        const params = new URLSearchParams({
-          action: 'stock_take',
-          branch: branch,
-          cashier: cashier,
-          stock_take_id: stockTakeId,
-          stock_take_data: JSON.stringify(stockTakeData)
-        });
-        
-        const response = await fetch(`${API_URL}?${params}`);
-        const data = await response.json();
-        
-        if (data.status === 'success') {
-          showAlert('Success', `Stock take completed.\nTotal Variance: ${data.total_variance} units\nTotal Value: $${data.total_value_variance.toFixed(2)}`);
-          stockTakeCounts.clear();
-          loadStockTakeProducts();
-          loadProducts();
-        } else {
-          showAlert('Error', data.message || 'Stock take failed');
-        }
-      } catch (error) {
-        console.error(error);
-        showAlert('Error', 'Stock take failed');
-      } finally {
-        hideLoading();
-      }
+      const receipt_no = generateReceiptNumber('STK');
+      await processWithSync('stock_take', params, receipt_no);
+      showAlert('Success', `Stock take queued for sync (${stockTakeData.length} changes)`);
+      stockTakeCounts.clear();
+      loadStockTakeProducts();
+      loadProducts();
     }
     
-    // PDF export functions
     function exportCurrentStockPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF('landscape');
-      
       doc.setFontSize(18);
       doc.text('Hair Mash Point Of Sale', 14, 22);
       doc.setFontSize(12);
       doc.text(`Current Stock Report - ${currentBranch}`, 14, 32);
       doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 38);
-      
       const productMap = new Map();
       currentProducts.forEach(p => {
         const key = `${p.code}-${p.Product}`;
@@ -1944,51 +1699,24 @@
         }
         productMap.get(key).stock += parseFloat(p.Stock) || 0;
       });
-      
       const products = Array.from(productMap.values());
-      
-      const tableColumn = ["Code", "Product", "Cost", "Price", "Stock", "Value", "Item", "TAX%"];
-      const tableRows = products.map(p => [
-        p.code || '',
-        p.name || '',
-        `$${p.cost.toFixed(2)}`,
-        `$${p.price.toFixed(2)}`,
-        p.stock.toString(),
-        `$${(p.stock * p.price).toFixed(2)}`,
-        p.item,
-        `${p.tax}%`
-      ]);
-      
-      doc.autoTable({
-        head: [tableColumn],
-        body: tableRows,
-        startY: 45,
-        theme: 'striped',
-        headStyles: { fillColor: [0, 51, 102] }
-      });
-      
+      const tableRows = products.map(p => [p.code || '', p.name || '', `$${p.cost.toFixed(2)}`, `$${p.price.toFixed(2)}`, p.stock.toString(), `$${(p.stock * p.price).toFixed(2)}`, p.item, `${p.tax}%`]);
+      doc.autoTable({ head: [["Code", "Product", "Cost", "Price", "Stock", "Value", "Item", "TAX%"]], body: tableRows, startY: 45, theme: 'striped', headStyles: { fillColor: [0, 51, 102] } });
       doc.save(`current_stock_${currentBranch}_${new Date().toISOString().split('T')[0]}.pdf`);
     }
     
-    function exportStockTakePDF() {
-      exportCurrentStockPDF();
-    }
+    function exportStockTakePDF() { exportCurrentStockPDF(); }
     
     function exportStockTakeVariancePDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      
       doc.setFontSize(18);
       doc.text('Hair Mash Point Of Sale', 14, 22);
       doc.setFontSize(12);
       doc.text(`Stock Take Variance Report - ${document.getElementById('stockTakeBranch').value}`, 14, 32);
       doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 38);
-      
-      const tableColumn = ["Code", "Product", "Expected", "Counted", "Variance", "Value Variance"];
       const tableRows = [];
-      let totalVariance = 0;
-      let totalValueVariance = 0;
-      
+      let totalVariance = 0, totalValueVariance = 0;
       stockTakeProducts.forEach(p => {
         const key = p.code + '|' + p.product;
         const counted = stockTakeCounts.get(key);
@@ -1998,36 +1726,11 @@
           const valueVariance = variance * p.price;
           totalVariance += variance;
           totalValueVariance += valueVariance;
-          
-          tableRows.push([
-            p.code || '',
-            p.product || '',
-            p.expected.toString(),
-            countedNum.toString(),
-            variance.toString(),
-            `$${valueVariance.toFixed(2)}`
-          ]);
+          tableRows.push([p.code || '', p.product || '', p.expected.toString(), countedNum.toString(), variance.toString(), `$${valueVariance.toFixed(2)}`]);
         }
       });
-      
-      tableRows.push([
-        'TOTAL',
-        '',
-        '',
-        '',
-        totalVariance.toString(),
-        `$${totalValueVariance.toFixed(2)}`
-      ]);
-      
-      doc.autoTable({
-        head: [tableColumn],
-        body: tableRows,
-        startY: 45,
-        theme: 'striped',
-        headStyles: { fillColor: [0, 51, 102] },
-        footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' }
-      });
-      
+      tableRows.push(['TOTAL', '', '', '', totalVariance.toString(), `$${totalValueVariance.toFixed(2)}`]);
+      doc.autoTable({ head: [["Code", "Product", "Expected", "Counted", "Variance", "Value Variance"]], body: tableRows, startY: 45, theme: 'striped', headStyles: { fillColor: [0, 51, 102] } });
       doc.save(`stock_variance_${new Date().toISOString().split('T')[0]}.pdf`);
     }
     
@@ -2036,17 +1739,10 @@
       const startDate = document.getElementById('historyStartDate').value;
       const endDate = document.getElementById('historyEndDate').value;
       const cashier = document.getElementById('historyCashier').value;
-      
       showLoading('Loading history...');
       try {
-        const params = new URLSearchParams({
-          action: 'get_stock_take_history',
-          branch: branch,
-          start_date: startDate,
-          end_date: endDate
-        });
+        const params = new URLSearchParams({ action: 'get_stock_take_history', branch: branch, start_date: startDate, end_date: endDate });
         if (cashier) params.append('cashier', cashier);
-        
         const response = await fetch(`${API_URL}?${params}`);
         const data = await response.json();
         if (data.status === 'success') {
@@ -2054,18 +1750,7 @@
           if (!data.data || data.data.length === 0) {
             tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No records found</td></tr>';
           } else {
-            tbody.innerHTML = data.data.map(item => `
-              <tr>
-                <td>${item.date || ''}</td>
-                <td>${item.reason || ''}</td>
-                <td>${item.branch || ''}</td>
-                <td>${item.cashier || ''}</td>
-                <td>${item.product || ''}</td>
-                <td>${item.code || ''}</td>
-                <td>${item.stock_change || 0}</td>
-                <td>$${(item.value_change || 0).toFixed(2)}</td>
-              </tr>
-            `).join('');
+            tbody.innerHTML = data.data.map(item => `<tr><td>${item.date || ''}</td><td>${item.reason || ''}</td><td>${item.branch || ''}</td><td>${item.cashier || ''}</td><td>${item.product || ''}</td><td>${item.code || ''}</td><td>${item.stock_change || 0}</td><td>$${(item.value_change || 0).toFixed(2)}</td></tr>`).join('');
           }
         } else {
           showAlert('Error', data.message || 'Failed to load history');
@@ -2081,39 +1766,26 @@
     function exportStockTakeHistoryPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF('landscape');
-      
       doc.setFontSize(18);
       doc.text('Hair Mash Point Of Sale', 14, 22);
       doc.setFontSize(12);
       doc.text(`Stock Take History - ${document.getElementById('historyBranch').value}`, 14, 32);
       doc.text(`Period: ${document.getElementById('historyStartDate').value} to ${document.getElementById('historyEndDate').value}`, 14, 38);
-      
       const table = document.getElementById('historyTable');
-      const rows = [];
       const headers = [];
-      
       const headerCells = table.querySelectorAll('thead th');
       headerCells.forEach(th => headers.push(th.textContent));
-      
+      const rows = [];
       const bodyRows = table.querySelectorAll('tbody tr');
       bodyRows.forEach(tr => {
         const row = [];
         tr.querySelectorAll('td').forEach(td => row.push(td.textContent));
         if (row.length === headers.length) rows.push(row);
       });
-      
-      doc.autoTable({
-        head: [headers],
-        body: rows,
-        startY: 45,
-        theme: 'striped',
-        headStyles: { fillColor: [0, 51, 102] }
-      });
-      
+      doc.autoTable({ head: [headers], body: rows, startY: 45, theme: 'striped', headStyles: { fillColor: [0, 51, 102] } });
       doc.save(`stock_history_${new Date().toISOString().split('T')[0]}.pdf`);
     }
     
-    // UI Helpers
     function showLoading(message) {
       const overlay = document.getElementById('loadingOverlay');
       const text = document.getElementById('loadingText');
@@ -2142,14 +1814,12 @@
       openModal('alertModal');
     }
     
-    // Close suggestions when clicking outside
     document.addEventListener('click', function(e) {
       if (!e.target.closest('#productSearchInput')) {
         document.getElementById('searchSuggestions').style.display = 'none';
       }
     });
     
-    // Make functions global
     window.switchTab = switchTab;
     window.loadProducts = loadProducts;
     window.filterProducts = filterProducts;
@@ -2159,7 +1829,6 @@
     window.hideUpdatePanel = hideUpdatePanel;
     window.closeModal = closeModal;
     window.openStockModal = openStockModal;
-    window.openRemoveStockModal = openRemoveStockModal;
     window.searchProductsForStock = searchProductsForStock;
     window.selectProductForStock = selectProductForStock;
     window.calculateProfitPreview = calculateProfitPreview;
