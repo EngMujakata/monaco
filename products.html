@@ -1024,11 +1024,9 @@
     
     // Check if receipt exists in last 10 (local + remote)
     async function checkReceiptExists(receipt_no) {
-      // First check local synced receipts
       const localReceipts = await getLast10SyncedReceipts();
       if (localReceipts.includes(receipt_no)) return true;
       
-      // Then check remote API
       try {
         const response = await fetch(`${API_URL}?action=check_receipt_exists&receipt_no=${encodeURIComponent(receipt_no)}`);
         const data = await response.json();
@@ -1057,7 +1055,6 @@
       
       for (const action of pending) {
         try {
-          // Check if already synced via receipt
           if (action.receipt_no) {
             const exists = await checkReceiptExists(action.receipt_no);
             if (exists) {
@@ -1067,11 +1064,9 @@
             }
           }
           
-          // Build params
           const params = new URLSearchParams(action.params);
           params.append('receipt_no', action.receipt_no);
           
-          // Send to API
           const response = await fetch(`${API_URL}?${params}`);
           const data = await response.json();
           
@@ -1089,7 +1084,9 @@
               await deleteAction(action.id);
               showSyncStatus(`✗ Failed: ${action.action} after 5 retries`, 'sync-error');
             } else {
-              await savePendingAction(action);
+              const updatedAction = { ...action, synced: false };
+              await savePendingAction(updatedAction);
+              await deleteAction(action.id);
             }
           }
         } catch (error) {
@@ -1205,7 +1202,7 @@
         const data = await response.json();
         if (data.status === 'success') {
           const select = document.getElementById('stockTakeCashier');
-          select.innerHTML = data.cashiers.map(c => `<option value="${c}">${c}</option>`).join('');
+          select.innerHTML = '<option value="">Select Cashier</option>' + data.cashiers.map(c => `<option value="${c}">${c}</option>`).join('');
         }
       } catch (error) {
         console.error('Error loading cashiers:', error);
@@ -1381,6 +1378,14 @@
       document.getElementById('stockModalTitle').textContent = 'Receive Stock';
       document.getElementById('receiveStockBtn').style.display = 'inline-flex';
       document.getElementById('removeStockBtn').style.display = 'none';
+      clearStockForm();
+      openModal('stockModal');
+    }
+    
+    function openRemoveStockModal() {
+      document.getElementById('stockModalTitle').textContent = 'Remove Stock';
+      document.getElementById('receiveStockBtn').style.display = 'none';
+      document.getElementById('removeStockBtn').style.display = 'inline-flex';
       clearStockForm();
       openModal('stockModal');
     }
@@ -1820,6 +1825,7 @@
       }
     });
     
+    // Make functions global
     window.switchTab = switchTab;
     window.loadProducts = loadProducts;
     window.filterProducts = filterProducts;
@@ -1829,6 +1835,7 @@
     window.hideUpdatePanel = hideUpdatePanel;
     window.closeModal = closeModal;
     window.openStockModal = openStockModal;
+    window.openRemoveStockModal = openRemoveStockModal;
     window.searchProductsForStock = searchProductsForStock;
     window.selectProductForStock = selectProductForStock;
     window.calculateProfitPreview = calculateProfitPreview;
