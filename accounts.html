@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>SPARK POS | Accounts & Balance Sheet</title>
+  <title>MONACO POS | Accounts & Balance Sheet</title>
   <style>
     :root {
       --primary: #003366;
@@ -550,7 +550,7 @@
 <body>
 
 <header>
-  <div class="logo">⚡ SPARK POS</div>
+  <div class="logo"> MONACO POS</div>
   <div class="user-info">
     <span id="welcomeMessage"></span>
     <div class="avatar" id="userAvatar">A</div>
@@ -1163,7 +1163,7 @@
         .small { font-size: 0.8rem; color: gray; }
       </style></head>
       <body>
-        <h1>SPARK POS - Day Report</h1>
+        <h1>MONACO POS - Day Report</h1>
         <p>Generated: ${new Date().toLocaleString()}</p>
         <div class="row"><strong>Date:</strong> ${date}</div>
         <div class="row"><strong>Gross Profit:</strong> <span class="positive">$${data.gp.toFixed(2)}</span></div>
@@ -1171,7 +1171,7 @@
         <div class="row"><strong>Net Profit:</strong> <span class="${data.net >= 0 ? 'positive' : 'negative'}">$${data.net.toFixed(2)}</span></div>
         <h3>Expense Details</h3>
         ${expensesTable}
-        <p style="margin-top: 30px; text-align: center; font-size: 0.8rem;">SPARK POS System - Audit Trail Included</p>
+        <p style="margin-top: 30px; text-align: center; font-size: 0.8rem;">MONACO POS System - Audit Trail Included</p>
       </body></html>
     `);
     win.document.close();
@@ -1332,7 +1332,7 @@
         <p>Generated: ${new Date().toLocaleString()}</p>
         <div class="summary-cards">${summaryHtml}</div>
         ${tableHtml}
-        <p style="margin-top: 30px; text-align: center;">SPARK POS System</p>
+        <p style="margin-top: 30px; text-align: center;">MONACO POS System</p>
       </body></html>
     `);
     win.document.close();
