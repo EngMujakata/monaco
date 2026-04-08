@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>SPARK POS | Accounts & Balance Sheet</title>
+  <style>
+    :root {
+      --primary: #003366;
+      --primary-light: #004080;
+      --secondary: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --light: #f8f9fa;
+      --dark: #1f2937;
+      --gray: #6b7280;
+      --border-radius: 0.5rem;
+      --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: var(--dark);
+      line-height: 1.5;
+    }
+    
+    header {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      color: var(--primary);
+      padding: 0.75rem 1rem;
+      box-shadow: var(--box-shadow);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 51, 102, 0.1);
+    }
+    
+    .logo {
+      font-weight: 800;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    #welcomeMessage {
+      font-size: 0.75rem;
+      display: none;
+    }
+    
+    @media (min-width: 640px) {
+      #welcomeMessage {
+        display: inline;
+      }
+    }
+    
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      font-size: 0.8rem;
+    }
+    
+    .logout-btn {
+      padding: 0.35rem 0.7rem;
+      background-color: var(--danger);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+    
+    .container {
+      padding: 0.75rem;
+      margin-top: 65px;
+      margin-bottom: 70px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #e5e7eb;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .filter-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: flex-end;
+    }
+    
+    .filter-group {
+      flex: 1;
+      min-width: 120px;
+    }
+    
+    label {
+      font-weight: 600;
+      font-size: 0.7rem;
+      color: var(--gray);
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+    
+    input[type="date"], select, input[type="text"], input[type="number"] {
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: var(--border-radius);
+      font-size: 0.8rem;
+      width: 100%;
+      box-sizing: border-box;
+      background: white;
+    }
+    
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0.75rem 0;
+    }
+    
+    button {
+      padding: 0.6rem 0.75rem;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      flex: 1;
+      min-width: 100px;
+    }
+    
+    @media (min-width: 480px) {
+      button {
+        flex: 0 1 auto;
+        min-width: 110px;
+      }
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background-color: var(--primary-light);
+    }
+    
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+    
+    .btn-success {
+      background-color: var(--secondary);
+      color: white;
+    }
+    
+    .btn-info {
+      background-color: var(--info);
+      color: white;
+    }
+    
+    .btn-warning {
+      background-color: var(--warning);
+      color: white;
+    }
+    
+    .summary-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .summary-card-item {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      padding: 0.75rem;
+      border-radius: var(--border-radius);
+      text-align: center;
+    }
+    
+    .summary-card-item h4 {
+      margin: 0 0 0.25rem 0;
+      font-size: 0.7rem;
+      opacity: 0.9;
+    }
+    
+    .summary-card-item .value {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    
+    @media (min-width: 640px) {
+      .summary-card-item .value {
+        font-size: 1.3rem;
+      }
+    }
+    
+    .table-container {
+      max-height: 450px;
+      overflow-y: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: var(--border-radius);
+      margin-bottom: 1rem;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+    
+    .data-table th, .data-table td {
+      padding: 0.6rem 0.5rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .data-table th {
+      background: linear-gradient(135deg, #f8f9fa, #f3f4f6);
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 0.7rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    
+    .data-table tbody tr {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .data-table tbody tr:active {
+      background: #f0fdf4;
+      transform: scale(0.99);
+    }
+    
+    .profit-positive {
+      color: var(--secondary);
+      font-weight: 700;
+    }
+    
+    .profit-negative {
+      color: var(--danger);
+      font-weight: 700;
+    }
+    
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+    
+    .spinner {
+      border: 3px solid rgba(0, 51, 102, 0.1);
+      border-left-color: var(--primary);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-around;
+      padding: 0.4rem 0;
+      z-index: 1000;
+    }
+    
+    .footer-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--gray);
+      text-decoration: none;
+      font-size: 0.65rem;
+      cursor: pointer;
+      transition: color 0.2s;
+      padding: 0.2rem;
+    }
+    
+    .footer-icon {
+      font-size: 1rem;
+      margin-bottom: 0.1rem;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      overflow: auto;
+    }
+    
+    .modal-content {
+      background: white;
+      margin: 10% auto;
+      padding: 1.25rem;
+      border-radius: var(--border-radius);
+      width: 92%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .modal-header {
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .modal-title {
+      color: var(--primary);
+      font-weight: 700;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+    }
+    
+    .modal-body {
+      margin-bottom: 1rem;
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .close {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: var(--gray);
+    }
+    
+    .brand {
+      color: var(--primary);
+      font-weight: 700;
+      font-style: italic;
+      margin-top: 0.75rem;
+      font-size: 0.7rem;
+      text-align: right;
+    }
+    
+    .expense-item {
+      background: #f8fafc;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: var(--border-radius);
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .expense-item input {
+      flex: 1;
+      min-width: 100px;
+    }
+    
+    .expense-item button {
+      flex: 0 0 auto;
+      min-width: 35px;
+      padding: 0.4rem;
+    }
+    
+    .expense-list {
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    
+    .btn-icon {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.7rem;
+    }
+    
+    .export-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      justify-content: flex-end;
+    }
+    
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6rem;
+      border-bottom: 1px solid #e5e7eb;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .detail-label {
+      font-weight: 600;
+      color: var(--gray);
+      font-size: 0.8rem;
+    }
+    
+    .detail-value {
+      font-weight: 500;
+      color: var(--dark);
+      font-size: 0.8rem;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    @media (min-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .filter-controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      
+      .filter-row {
+        flex: 1;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">⚡ SPARK POS</div>
+  <div class="user-info">
+    <span id="welcomeMessage"></span>
+    <div class="avatar" id="userAvatar">A</div>
+    <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="summary-card-item">
+      <h4><i class="fas fa-chart-line"></i> Gross Profit</h4>
+      <div class="value" id="totalGrossProfit">$0.00</div>
+    </div>
+    <div class="summary-card-item">
+      <h4><i class="fas fa-receipt"></i> Expenses</h4>
+      <div class="value" id="totalExpenses">$0.00</div>
+    </div>
+    <div class="summary-card-item">
+      <h4><i class="fas fa-dollar-sign"></i> Net Profit</h4>
+      <div class="value" id="totalNetProfit">$0.00</div>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title"><i class="fas fa-balance-scale"></i> Balance Sheet</h2>
+      <button class="btn-info" onclick="loadBalanceSheet()">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+    
+    <div class="filter-controls">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label><i class="fas fa-calendar-alt"></i> Filter:</label>
+          <select id="filterType">
+            <option value="current_month">Current Month</option>
+            <option value="previous_month">Previous Month</option>
+            <option value="date">Specific Date</option>
+            <option value="range">Date Range</option>
+          </select>
+        </div>
+        
+        <div class="filter-group" id="dateFilter" style="display: none;">
+          <label><i class="fas fa-calendar-day"></i> Date:</label>
+          <input type="date" id="filterDate">
+        </div>
+      </div>
+      
+      <div class="filter-row" id="dateRangeFilter" style="display: none;">
+        <div class="filter-group">
+          <label>From:</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="filter-group">
+          <label>To:</label>
+          <input type="date" id="endDate">
+        </div>
+      </div>
+    </div>
+    
+    <div class="button-group">
+      <button class="btn-primary" id="applyFilter"><i class="fas fa-filter"></i> Apply</button>
+      <button class="btn-danger" id="resetFilter"><i class="fas fa-undo-alt"></i> Reset</button>
+      <button class="btn-success" id="endOfDayBtn"><i class="fas fa-calendar-day"></i> End Day</button>
+    </div>
+    
+    <div class="export-buttons">
+      <button class="btn-info btn-icon" onclick="exportToPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+      <button class="btn-success btn-icon" onclick="exportToCSV()"><i class="fas fa-file-excel"></i> CSV</button>
+    </div>
+    
+    <div id="loadingIndicator" class="loading" style="display: none;">
+      <div class="spinner"></div>
+    </div>
+    
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Gross Profit</th>
+            <th>Expenses</th>
+            <th>Net Profit</th>
+          </tr>
+        </thead>
+        <tbody id="balanceSheetData">
+          <tr><td colspan="4" style="text-align: center;">Loading...</td</tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="index.html" class="footer-item">
+    <i class="fas fa-home footer-icon"></i>
+    <span>Home</span>
+  </a>
+  <a href="products.html" class="footer-item">
+    <i class="fas fa-box-open footer-icon"></i>
+    <span>Products</span>
+  </a>
+  <a href="accounts.html" class="footer-item active">
+    <i class="fas fa-chart-line footer-icon"></i>
+    <span>Accounts</span>
+  </a>
+  <a href="reports.html" class="footer-item">
+    <i class="fas fa-chart-bar footer-icon"></i>
+    <span>Reports</span>
+  </a>
+  <a href="cashup.html" class="footer-item">
+    <i class="fas fa-calculator footer-icon"></i>
+    <span>Cashup</span>
+  </a>
+</footer>
+
+<!-- Modals -->
+<div id="endOfDayModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeEndOfDayModal()">&times;</span>
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-calendar-day"></i> End of Day</h3>
+    </div>
+    <div class="modal-body">
+      <label>Select Date:</label>
+      <input type="date" id="eodDate">
+      <p style="margin-top: 0.75rem; padding: 0.5rem; background: #f0f9ff; border-radius: var(--border-radius); font-size: 0.75rem;">
+        <i class="fas fa-info-circle"></i> Calculates GP from all sales on this date.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" onclick="closeEndOfDayModal()">Cancel</button>
+      <button class="btn-success" id="confirmEOD">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div id="expensesModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeExpensesModal()">&times;</span>
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-receipt"></i> Add Expenses: <span id="expenseDate"></span></h3>
+    </div>
+    <div class="modal-body">
+      <div style="background: #f0fdf4; padding: 0.75rem; border-radius: var(--border-radius); margin-bottom: 1rem;">
+        <p><strong>💰 Gross Profit:</strong> $<span id="expenseGP"></span></p>
+        <p><strong>📊 Current Net:</strong> $<span id="expenseCurrentNet"></span></p>
+      </div>
+      
+      <label>Transaction ID:</label>
+      <input type="text" id="expenseTransactionId" placeholder="e.g., EXP_001">
+      
+      <label style="margin-top: 0.75rem;">Expenses:</label>
+      <div id="expensesList">
+        <div class="expense-item">
+          <input type="text" placeholder="Description" id="expDesc_0">
+          <input type="number" placeholder="Amount" id="expAmt_0">
+          <button class="btn-danger btn-icon" onclick="removeExpense(0)">✕</button>
+        </div>
+      </div>
+      
+      <button class="btn-info btn-icon" onclick="addExpenseField()" style="margin-top: 0.5rem; width: 100%;">
+        <i class="fas fa-plus"></i> Add Expense
+      </button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" onclick="closeExpensesModal()">Cancel</button>
+      <button class="btn-success" id="submitExpenses">Submit</button>
+    </div>
+  </div>
+</div>
+
+<div id="deleteExpenseModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeDeleteExpenseModal()">&times;</span>
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-trash-alt"></i> Delete/Cancel Expense</h3>
+    </div>
+    <div class="modal-body">
+      <p><strong>Date:</strong> <span id="deleteExpenseDate"></span></p>
+      <p><strong>Expense:</strong> <span id="deleteExpenseDesc"></span></p>
+      <p><strong>Original Amount:</strong> $<span id="deleteExpenseAmount"></span></p>
+      <p style="color: var(--danger);"><strong>This will post a negative amount to reverse the expense.</strong></p>
+      <p>Reason for cancellation:</p>
+      <input type="text" id="cancelReason" placeholder="e.g., Wrong entry, Return, etc." style="width: 100%;">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" onclick="closeDeleteExpenseModal()">Cancel</button>
+      <button class="btn-warning" id="confirmDeleteExpense">Confirm Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="dayDetailsModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeDayDetailsModal()">&times;</span>
+    <div class="modal-header">
+      <h3 class="modal-title">Day Details: <span id="detailDate"></span></h3>
+    </div>
+    <div class="modal-body" id="dayDetailsContent"></div>
+    <div class="action-buttons">
+      <button class="btn-success" onclick="openAddExpenseFromDay()"><i class="fas fa-plus"></i> Add Expense</button>
+      <button class="btn-primary" onclick="downloadDayDetailsPDF()"><i class="fas fa-download"></i> Download PDF</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-info" onclick="closeDayDetailsModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="alertModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeAlertModal()">&times;</span>
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-exclamation-circle"></i> <span id="alertTitle"></span></h3>
+    </div>
+    <div class="modal-body">
+      <p id="alertMessage"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" onclick="closeAlertModal()">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const BALANCE_API = "https://script.google.com/macros/s/AKfycbyL7D-PrCyi4nUUsWGE4gqw6iBixxNoM3a7M9g0RacTWsVsj4CUEgear_V4ZHkNH7zE/exec";
+  
+  let allData = [];
+  let filteredData = [];
+  let expenseCount = 1;
+  let currentDayDetails = null;
+  let currentDeleteExpense = null;
+  let loggedInUser = "";
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    const username = localStorage.getItem("username");
+    const role = localStorage.getItem("role");
+    const branch = localStorage.getItem("branch");
+    
+    if (!username || !role || !branch) {
+      window.location.href = "index.html";
+      return;
+    }
+    
+    if (role !== "admin") {
+      showAlert("Access Denied", "Admin access required.");
+      setTimeout(() => window.location.href = "index.html", 2000);
+      return;
+    }
+    
+    loggedInUser = username;
+    
+    document.getElementById("welcomeMessage").textContent = `${username} (${role}) - ${branch}`;
+    document.getElementById("userAvatar").textContent = username.charAt(0).toUpperCase();
+    
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("filterDate").value = today;
+    document.getElementById("startDate").value = today;
+    document.getElementById("endDate").value = today;
+    document.getElementById("eodDate").value = today;
+    
+    setupEventListeners();
+    loadBalanceSheet();
+  });
+  
+  function setupEventListeners() {
+    document.getElementById("filterType").addEventListener("change", function() {
+      const type = this.value;
+      document.getElementById("dateFilter").style.display = type === "date" ? "flex" : "none";
+      document.getElementById("dateRangeFilter").style.display = type === "range" ? "flex" : "none";
+    });
+    
+    document.getElementById("applyFilter").addEventListener("click", applyFilters);
+    document.getElementById("resetFilter").addEventListener("click", resetFilters);
+    document.getElementById("endOfDayBtn").addEventListener("click", openEndOfDayModal);
+    document.getElementById("confirmEOD").addEventListener("click", runEndOfDay);
+    document.getElementById("submitExpenses").addEventListener("click", submitExpenses);
+    document.getElementById("confirmDeleteExpense").addEventListener("click", confirmDeleteExpense);
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.clear();
+      window.location.href = "index.html";
+    });
+  }
+  
+  async function loadBalanceSheet() {
+    showLoading(true);
+    try {
+      const res = await fetch(`${BALANCE_API}?t=${Date.now()}`);
+      const result = await res.json();
+      allData = (result.data && Array.isArray(result.data)) ? result.data : (Array.isArray(result) ? result : []);
+      console.log("Loaded:", allData.length, "records");
+      applyFilters();
+    } catch (err) {
+      console.error(err);
+      showAlert("Error", "Failed to load data: " + err.message);
+    } finally {
+      showLoading(false);
+    }
+  }
+  
+  function applyFilters() {
+    const type = document.getElementById("filterType").value;
+    let filtered = [...allData];
+    const now = new Date();
+    
+    if (type === "current_month") {
+      filtered = filtered.filter(item => {
+        if (!item.date) return false;
+        const d = new Date(item.date);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      });
+    } else if (type === "previous_month") {
+      const prevMonth = now.getMonth() - 1;
+      const year = prevMonth < 0 ? now.getFullYear() - 1 : now.getFullYear();
+      const month = prevMonth < 0 ? 11 : prevMonth;
+      filtered = filtered.filter(item => {
+        if (!item.date) return false;
+        const d = new Date(item.date);
+        return d.getMonth() === month && d.getFullYear() === year;
+      });
+    } else if (type === "date") {
+      const filterDate = document.getElementById("filterDate").value;
+      filtered = filtered.filter(item => {
+        if (!item.date) return false;
+        return new Date(item.date).toISOString().split('T')[0] === filterDate;
+      });
+    } else if (type === "range") {
+      const start = document.getElementById("startDate").value;
+      const end = document.getElementById("endDate").value;
+      filtered = filtered.filter(item => {
+        if (!item.date) return false;
+        const d = new Date(item.date).toISOString().split('T')[0];
+        return d >= start && d <= end;
+      });
+    }
+    
+    filteredData = filtered;
+    displayBalanceSheet();
+    updateSummaryCards();
+  }
+  
+  function resetFilters() {
+    document.getElementById("filterType").value = "current_month";
+    document.getElementById("dateFilter").style.display = "none";
+    document.getElementById("dateRangeFilter").style.display = "none";
+    applyFilters();
+  }
+  
+  function displayBalanceSheet() {
+    const tbody = document.getElementById("balanceSheetData");
+    tbody.innerHTML = "";
+    
+    const dailyData = {};
+    
+    allData.forEach(item => {
+      if (item.exp_description && item.exp_description.startsWith("END_OF_DAY_GP_")) {
+        const match = item.exp_description.match(/END_OF_DAY_GP_(.+)/);
+        if (match) {
+          const date = match[1];
+          if (!dailyData[date]) {
+            dailyData[date] = {
+              gp: item.gp || 0,
+              expenses: [],
+              net: item.net || 0,
+              endOfDayId: item.id,
+              allExpenseItems: []
+            };
+          } else {
+            dailyData[date].gp = item.gp || 0;
+            dailyData[date].net = item.net || 0;
+          }
+        }
+      }
+    });
+    
+    allData.forEach(item => {
+      if (item.exp_description && !item.exp_description.startsWith("END_OF_DAY_GP_")) {
+        let targetDate = null;
+        
+        if (item.original_date) {
+          const origDate = new Date(item.original_date).toISOString().split('T')[0];
+          if (dailyData[origDate]) targetDate = origDate;
+        }
+        
+        if (!targetDate && item.date) {
+          const itemDate = new Date(item.date).toISOString().split('T')[0];
+          const dates = Object.keys(dailyData).sort();
+          for (let i = dates.length - 1; i >= 0; i--) {
+            if (dates[i] <= itemDate) {
+              targetDate = dates[i];
+              break;
+            }
+          }
+        }
+        
+        if (targetDate && dailyData[targetDate]) {
+          dailyData[targetDate].expenses.push({
+            description: item.exp_description,
+            amount: item.exp_amt || 0
+          });
+          dailyData[targetDate].allExpenseItems.push({
+            id: item.id,
+            description: item.exp_description,
+            amount: item.exp_amt || 0,
+            date: item.date,
+            user: item.user || 'unknown'
+          });
+        }
+      }
+    });
+    
+    const sortedDates = Object.keys(dailyData).sort().reverse();
+    
+    if (sortedDates.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No data. Run End of Day first.</td></tr>';
+      return;
+    }
+    
+    sortedDates.forEach(date => {
+      const data = dailyData[date];
+      const totalExp = data.expenses.reduce((s, e) => s + e.amount, 0);
+      const row = tbody.insertRow();
+      row.style.cursor = "pointer";
+      row.onclick = () => showDayDetails(date, data);
+      row.insertCell(0).innerHTML = `<i class="fas fa-calendar-alt"></i> ${date}`;
+      row.insertCell(1).innerHTML = `<span class="profit-positive">$${data.gp.toFixed(2)}</span>`;
+      row.insertCell(2).innerHTML = `<span class="profit-negative">$${totalExp.toFixed(2)}</span>`;
+      row.insertCell(3).innerHTML = `<span class="${data.net >= 0 ? 'profit-positive' : 'profit-negative'}">$${data.net.toFixed(2)}</span>`;
+    });
+  }
+  
+  function updateSummaryCards() {
+    let totalGP = 0, totalNet = 0, totalExp = 0;
+    const processed = new Set();
+    
+    allData.forEach(item => {
+      if (item.exp_description && item.exp_description.startsWith("END_OF_DAY_GP_")) {
+        const match = item.exp_description.match(/END_OF_DAY_GP_(.+)/);
+        if (match && !processed.has(match[1])) {
+          processed.add(match[1]);
+          totalGP += item.gp || 0;
+          totalNet += item.net || 0;
+        }
+      } else if (item.exp_description && !item.exp_description.startsWith("END_OF_DAY_GP_")) {
+        totalExp += item.exp_amt || 0;
+      }
+    });
+    
+    document.getElementById("totalGrossProfit").textContent = `$${totalGP.toFixed(2)}`;
+    document.getElementById("totalExpenses").textContent = `$${totalExp.toFixed(2)}`;
+    document.getElementById("totalNetProfit").textContent = `$${totalNet.toFixed(2)}`;
+  }
+  
+  function showDayDetails(date, data) {
+    currentDayDetails = { date, data };
+    const totalExp = data.expenses.reduce((s, e) => s + e.amount, 0);
+    
+    let expensesHtml = '';
+    if (data.allExpenseItems && data.allExpenseItems.length) {
+      expensesHtml = data.allExpenseItems.map((e, idx) => `
+        <div class="expense-item" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="flex: 1;">
+            <strong>${escapeHtml(e.description)}</strong><br>
+            <small style="color: gray;">ID: ${escapeHtml(e.id)} | By: ${escapeHtml(e.user)} | ${new Date(e.date).toLocaleString()}</small>
+          </div>
+          <div style="text-align: right;">
+            <span class="${e.amount < 0 ? 'profit-positive' : 'profit-negative'}" style="font-weight: bold;">
+              ${e.amount < 0 ? '+' : '-'}$${Math.abs(e.amount).toFixed(2)}
+            </span>
+            ${e.amount > 0 ? `<button class="btn-warning btn-icon" onclick='openDeleteExpenseModal("${date}", "${escapeHtml(e.description)}", ${e.amount}, "${escapeHtml(e.id)}")' style="margin-left: 0.5rem;"><i class="fas fa-trash"></i></button>` : ''}
+          </div>
+        </div>
+      `).join('');
+    } else {
+      expensesHtml = '<p>No expenses recorded.</p>';
+    }
+    
+    const html = `
+      <div class="detail-row"><span class="detail-label">Date:</span><span class="detail-value">${date}</span></div>
+      <div class="detail-row"><span class="detail-label">Gross Profit:</span><span class="detail-value profit-positive">$${data.gp.toFixed(2)}</span></div>
+      <div class="detail-row"><span class="detail-label">Total Expenses:</span><span class="detail-value profit-negative">$${totalExp.toFixed(2)}</span></div>
+      <div class="detail-row"><span class="detail-label">Net Profit:</span><span class="detail-value ${data.net >= 0 ? 'profit-positive' : 'profit-negative'}">$${data.net.toFixed(2)}</span></div>
+      <div class="detail-row"><span class="detail-label">Transaction ID:</span><span class="detail-value">${data.endOfDayId || 'N/A'}</span></div>
+      <h4 style="margin: 0.75rem 0 0.5rem;">Expense Transactions:</h4>
+      <div class="expense-list">
+        ${expensesHtml}
+      </div>
+    `;
+    
+    document.getElementById("detailDate").textContent = date;
+    document.getElementById("dayDetailsContent").innerHTML = html;
+    document.getElementById("dayDetailsModal").style.display = "block";
+  }
+  
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+      return c;
+    });
+  }
+  
+  function openAddExpenseFromDay() {
+    if (!currentDayDetails) {
+      showAlert("Error", "No day selected");
+      return;
+    }
+    closeDayDetailsModal();
+    openExpensesModal(currentDayDetails.date, currentDayDetails.data.gp, currentDayDetails.data.net);
+  }
+  
+  function openDeleteExpenseModal(date, description, amount, transactionId) {
+    currentDeleteExpense = { date, description, amount, transactionId };
+    document.getElementById("deleteExpenseDate").textContent = date;
+    document.getElementById("deleteExpenseDesc").textContent = description;
+    document.getElementById("deleteExpenseAmount").textContent = amount.toFixed(2);
+    document.getElementById("cancelReason").value = '';
+    document.getElementById("deleteExpenseModal").style.display = "block";
+  }
+  
+  function closeDeleteExpenseModal() {
+    document.getElementById("deleteExpenseModal").style.display = "none";
+    currentDeleteExpense = null;
+  }
+  
+  async function confirmDeleteExpense() {
+    if (!currentDeleteExpense) {
+      showAlert("Error", "No expense selected for deletion");
+      return;
+    }
+    
+    const reason = document.getElementById("cancelReason").value.trim() || "Cancelled/Deleted";
+    const cancelDescription = `[DELETED] ${currentDeleteExpense.description} - ${reason} (by ${loggedInUser})`;
+    const cancelAmount = -currentDeleteExpense.amount;
+    const cancelTransactionId = `CANCEL_${currentDeleteExpense.transactionId}_${Date.now()}`;
+    
+    closeDeleteExpenseModal();
+    closeDayDetailsModal();
+    showLoading(true);
+    
+    try {
+      const url = `${BALANCE_API}?action=write&transaction_id=${encodeURIComponent(cancelTransactionId)}&date=${currentDeleteExpense.date}&user=${encodeURIComponent(loggedInUser)}&exp_description=${encodeURIComponent(cancelDescription)}&exp_amt=${cancelAmount}`;
+      
+      const res = await fetch(url);
+      const result = await res.json();
+      
+      if (result.status === "success") {
+        showAlert("Success", `Expense cancelled successfully!\nAmount: $${currentDeleteExpense.amount.toFixed(2)} reversed.\nNew Net: $${result.current_net.toFixed(2)}`);
+        await loadBalanceSheet();
+      } else if (result.status === "duplicate") {
+        showAlert("Duplicate", "Transaction ID already exists. Please try again.");
+      } else {
+        showAlert("Error", result.error || "Failed to cancel expense");
+      }
+    } catch (err) {
+      showAlert("Error", err.message);
+    } finally {
+      showLoading(false);
+      currentDeleteExpense = null;
+    }
+  }
+  
+  function downloadDayDetailsPDF() {
+    if (!currentDayDetails) return;
+    const { date, data } = currentDayDetails;
+    const totalExp = data.expenses.reduce((s, e) => s + e.amount, 0);
+    
+    let expensesTable = '';
+    if (data.allExpenseItems && data.allExpenseItems.length) {
+      expensesTable = `
+        <table>
+          <thead><tr><th>Description</th><th>Amount</th><th>Transaction ID</th><th>User</th><th>Date/Time</th></tr></thead>
+          <tbody>
+            ${data.allExpenseItems.map(e => `
+              <tr>
+                <td>${e.description}</td>
+                <td class="${e.amount < 0 ? 'positive' : 'negative'}">${e.amount < 0 ? '+' : '-'}$${Math.abs(e.amount).toFixed(2)}</td>
+                <td>${e.id}</td>
+                <td>${e.user || 'unknown'}</td>
+                <td>${new Date(e.date).toLocaleString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } else {
+      expensesTable = '<p>No expenses recorded.</p>';
+    }
+    
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <html><head><title>Day Report - ${date}</title>
+      <style>
+        body { font-family: Arial; padding: 20px; }
+        h1 { color: #003366; }
+        .row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #ddd; }
+        .positive { color: green; }
+        .negative { color: red; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #003366; color: white; }
+        .small { font-size: 0.8rem; color: gray; }
+      </style></head>
+      <body>
+        <h1>SPARK POS - Day Report</h1>
+        <p>Generated: ${new Date().toLocaleString()}</p>
+        <div class="row"><strong>Date:</strong> ${date}</div>
+        <div class="row"><strong>Gross Profit:</strong> <span class="positive">$${data.gp.toFixed(2)}</span></div>
+        <div class="row"><strong>Total Expenses:</strong> <span class="negative">$${totalExp.toFixed(2)}</span></div>
+        <div class="row"><strong>Net Profit:</strong> <span class="${data.net >= 0 ? 'positive' : 'negative'}">$${data.net.toFixed(2)}</span></div>
+        <h3>Expense Details</h3>
+        ${expensesTable}
+        <p style="margin-top: 30px; text-align: center; font-size: 0.8rem;">SPARK POS System - Audit Trail Included</p>
+      </body></html>
+    `);
+    win.document.close();
+    win.print();
+  }
+  
+  function openEndOfDayModal() {
+    document.getElementById("endOfDayModal").style.display = "block";
+  }
+  
+  function closeEndOfDayModal() {
+    document.getElementById("endOfDayModal").style.display = "none";
+  }
+  
+  async function runEndOfDay() {
+    const date = document.getElementById("eodDate").value;
+    if (!date) return showAlert("Error", "Select a date");
+    closeEndOfDayModal();
+    showLoading(true);
+    try {
+      const res = await fetch(`${BALANCE_API}?action=endofday&day=${date}&user=${encodeURIComponent(loggedInUser)}&t=${Date.now()}`);
+      const result = await res.json();
+      if (result.status === "success") {
+        if (result.already_processed) {
+          showAlert("Already Processed", `Date ${date} already processed.\nGP: $${(result.gross_profit || 0).toFixed(2)}\nNet: $${(result.current_net || 0).toFixed(2)}`);
+        } else {
+          showAlert("Success", `End of day complete!\nGP: $${result.gross_profit.toFixed(2)}\nID: ${result.transaction_id}`);
+          await loadBalanceSheet();
+          openExpensesModal(date, result.gross_profit, result.current_net);
+        }
+        await loadBalanceSheet();
+      } else {
+        showAlert("Error", result.error || "Failed");
+      }
+    } catch (err) {
+      showAlert("Error", err.message);
+    } finally {
+      showLoading(false);
+    }
+  }
+  
+  function openExpensesModal(date, gp, net) {
+    document.getElementById("expenseDate").textContent = date;
+    document.getElementById("expenseGP").textContent = gp.toFixed(2);
+    document.getElementById("expenseCurrentNet").textContent = net.toFixed(2);
+    document.getElementById("expenseTransactionId").value = `EXP_${Date.now()}`;
+    document.getElementById("expensesList").innerHTML = '';
+    expenseCount = 0;
+    addExpenseField();
+    document.getElementById("expensesModal").style.display = "block";
+  }
+  
+  function closeExpensesModal() {
+    document.getElementById("expensesModal").style.display = "none";
+  }
+  
+  function addExpenseField() {
+    const idx = expenseCount;
+    const div = document.createElement("div");
+    div.className = "expense-item";
+    div.id = `expense_${idx}`;
+    div.innerHTML = `
+      <input type="text" placeholder="Description" id="expDesc_${idx}">
+      <input type="number" placeholder="Amount" id="expAmt_${idx}">
+      <button class="btn-danger btn-icon" onclick="removeExpense(${idx})">✕</button>
+    `;
+    document.getElementById("expensesList").appendChild(div);
+    expenseCount++;
+  }
+  
+  function removeExpense(idx) {
+    const el = document.getElementById(`expense_${idx}`);
+    if (el) el.remove();
+  }
+  
+  async function submitExpenses() {
+    const date = document.getElementById("expenseDate").textContent;
+    const txId = document.getElementById("expenseTransactionId").value.trim();
+    if (!txId) return showAlert("Error", "Transaction ID required");
+    
+    const expenses = [];
+    for (let i = 0; i < expenseCount; i++) {
+      const desc = document.getElementById(`expDesc_${i}`);
+      const amt = document.getElementById(`expAmt_${i}`);
+      if (desc && amt && desc.value.trim() && amt.value) {
+        expenses.push({ description: desc.value.trim(), amount: parseFloat(amt.value) });
+      }
+    }
+    if (!expenses.length) return showAlert("Error", "Add at least one expense");
+    
+    closeExpensesModal();
+    showLoading(true);
+    try {
+      let url = `${BALANCE_API}?action=write&transaction_id=${encodeURIComponent(txId)}&date=${date}&user=${encodeURIComponent(loggedInUser)}&t=${Date.now()}`;
+      if (expenses.length === 1) {
+        url += `&exp_description=${encodeURIComponent(expenses[0].description)}&exp_amt=${expenses[0].amount}`;
+      } else {
+        url += `&total_expenses=${expenses.length}`;
+        expenses.forEach((e, i) => {
+          url += `&exp_description[${i}]=${encodeURIComponent(e.description)}&exp_amt[${i}]=${e.amount}`;
+        });
+      }
+      const res = await fetch(url);
+      const result = await res.json();
+      if (result.status === "success") {
+        showAlert("Success", `Posted!\nTotal: $${result.total_expenses_added.toFixed(2)}\nNet: $${result.current_net.toFixed(2)}`);
+        await loadBalanceSheet();
+      } else if (result.status === "duplicate") {
+        showAlert("Duplicate", `ID "${txId}" already exists. Use a different ID.`);
+      } else {
+        showAlert("Error", result.error || "Failed");
+      }
+    } catch (err) {
+      showAlert("Error", err.message);
+    } finally {
+      showLoading(false);
+    }
+  }
+  
+  function showLoading(show) {
+    document.getElementById("loadingIndicator").style.display = show ? "flex" : "none";
+    document.querySelectorAll("button").forEach(btn => btn.disabled = show);
+  }
+  
+  function showAlert(title, msg) {
+    document.getElementById("alertTitle").textContent = title;
+    document.getElementById("alertMessage").textContent = msg;
+    document.getElementById("alertModal").style.display = "block";
+  }
+  
+  function closeAlertModal() {
+    document.getElementById("alertModal").style.display = "none";
+    document.querySelectorAll("button").forEach(btn => btn.disabled = false);
+  }
+  
+  function closeDayDetailsModal() {
+    document.getElementById("dayDetailsModal").style.display = "none";
+  }
+  
+  function exportToPDF() {
+    const win = window.open('', '_blank');
+    const tableHtml = document.querySelector(".table-container").innerHTML;
+    const summaryHtml = document.querySelector(".summary-cards").innerHTML;
+    win.document.write(`
+      <html><head><title>Balance Sheet Report</title>
+      <style>
+        body { font-family: Arial; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #003366; color: white; }
+        .positive { color: green; }
+        .negative { color: red; }
+        .summary-cards { display: flex; gap: 15px; margin: 20px 0; }
+        .summary-card-item { background: #003366; color: white; padding: 10px; border-radius: 8px; text-align: center; flex: 1; }
+      </style></head>
+      <body>
+        <h1>Balance Sheet Report</h1>
+        <p>Generated: ${new Date().toLocaleString()}</p>
+        <div class="summary-cards">${summaryHtml}</div>
+        ${tableHtml}
+        <p style="margin-top: 30px; text-align: center;">SPARK POS System</p>
+      </body></html>
+    `);
+    win.document.close();
+    win.print();
+  }
+  
+  function exportToCSV() {
+    const rows = [["Date", "Gross Profit", "Total Expenses", "Net Profit"]];
+    document.querySelectorAll("#balanceSheetData tr").forEach(row => {
+      const cells = row.querySelectorAll("td");
+      if (cells.length === 4) {
+        rows.push([
+          cells[0].textContent.replace(/[^\d\-]/g, ''),
+          cells[1].textContent.replace(/[^0-9.-]/g, ''),
+          cells[2].textContent.replace(/[^0-9.-]/g, ''),
+          cells[3].textContent.replace(/[^0-9.-]/g, '')
+        ]);
+      }
+    });
+    const blob = new Blob([rows.map(r => r.join(",")).join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `balance_sheet_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  
+  // Make functions available globally
+  window.closeAlertModal = closeAlertModal;
+  window.closeDayDetailsModal = closeDayDetailsModal;
+  window.downloadDayDetailsPDF = downloadDayDetailsPDF;
+  window.closeEndOfDayModal = closeEndOfDayModal;
+  window.closeExpensesModal = closeExpensesModal;
+  window.openDeleteExpenseModal = openDeleteExpenseModal;
+  window.closeDeleteExpenseModal = closeDeleteExpenseModal;
+  window.openAddExpenseFromDay = openAddExpenseFromDay;
+  window.addExpenseField = addExpenseField;
+  window.removeExpense = removeExpense;
+  window.exportToPDF = exportToPDF;
+  window.exportToCSV = exportToCSV;
+  window.loadBalanceSheet = loadBalanceSheet;
+</script>
+</body>
+</html>
