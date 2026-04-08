@@ -1674,7 +1674,7 @@
         cashier: currentUser?.username || 'System',
         reason: 'New product added'
       });
-      
+      //
       showLoading('Adding product...');
       try {
         const response = await fetch(API_URL, {
