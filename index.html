@@ -1178,29 +1178,14 @@
         </div>
       </div>
     </div>
-
-  <footer>
-    <a href="index.html" class="footer-item active" id="footer-home">
-      <i class="fas fa-home footer-icon"></i>
-      <span>Home</span>
-    </a>
-    <a href="products.html" class="footer-item" id="footer-products">
-      <i class="fas fa-box-open footer-icon"></i>
-      <span>Products</span>
-    </a>
-    <a href="accounts.html" class="footer-item" id="footer-accounts">
-      <i class="fas fa-chart-line footer-icon"></i>
-      <span>Accounts</span>
-    </a>
-    <a href="reports.html" class="footer-item" id="footer-reports">
-      <i class="fas fa-chart-line footer-icon"></i>
-      <span>Reports</span>
-    </a>
-    <a href="cashup.html" class="footer-item" id="footer-cashup">
-      <i class="fas fa-calculator footer-icon"></i>
-      <span>Cashup</span>
-    </a>
-  </footer>
+    
+    <footer>
+      <a href="index.html" class="footer-item active" id="footer-home"><i class="fas fa-home footer-icon"></i><span>Home</span></a>
+      <a href="products.html" class="footer-item" id="footer-products"><i class="fas fa-box-open footer-icon"></i><span>Products</span></a>
+      <a href="accounts.html" class="footer-item" id="footer-accounts"><i class="fas fa-chart-line footer-icon"></i><span>Accounts</span></a>
+      <a href="reports.html" class="footer-item" id="footer-reports"><i class="fas fa-chart-line footer-icon"></i><span>Reports</span></a>
+      <a href="cashup.html" class="footer-item" id="footer-cashup"><i class="fas fa-calculator footer-icon"></i><span>Cashup</span></a>
+    </footer>
 
     
     <!-- Alert Modal -->
@@ -1253,16 +1238,15 @@
 <script>
   // Configuration
   const ADMIN_PASSWORD = "123";
-  const PRODUCTS_API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxrxWe7aF1njsbEgZ9kQTIXMxRdNnIyx551xl-CIFB67JgDgyIQkOOup2RVud5hEZw/exec";
+  const PRODUCTS_API_ENDPOINT = "https://script.google.com/macros/s/AKfycbycgnH0b319Tcj4nQByRGr29YLmriFMadEkh3Ua1SLQF8zOi1qWTJLe_CcB73ziTPc/exec";
   const SALES_API_ENDPOINT = "https://script.google.com/macros/s/AKfycbyBc0xzZopT11OJiOREhkh8e4Au0yc0Vgiw8j3gJ778wSwxk-JEH-1c8-hLcuks9wo/exec";
-  const ACCOUNTS_API_ENDPOINT = "https://script.google.com/macros/s/AKfycbz42CdP2jbpSIh95LYHz0CqMWpRj9_u4g3GtlmDr9mupZHURDW9jGno3PKoZUQLGpZv/exec";
   const SYNC_INTERVAL = 30000;
-  const PRODUCTS_PER_PAGE = 999999;
+  const PRODUCTS_PER_PAGE = 999999; // Changed from 50 to show ALL products
 
   // IndexedDB setup
   let db;
-  const DB_NAME = 'MONACOPOS';
-  const DB_VERSION = 3;
+  const DB_NAME = 'tinashee';
+  const DB_VERSION = 1;
 
   // Global sync variables
   let autoSyncTimer = null;
@@ -1296,8 +1280,8 @@
         db = event.target.result;
         
         if (!db.objectStoreNames.contains('products')) {
-          const productsStore = db.createObjectStore('products', { keyPath: 'code' });
-          productsStore.createIndex('name', 'product', { unique: false });
+          const productsStore = db.createObjectStore('products', { keyPath: 'id' });
+          productsStore.createIndex('name', 'name', { unique: false });
           productsStore.createIndex('branch', 'branch', { unique: false });
         }
         
@@ -1312,12 +1296,6 @@
           salesStore.createIndex('date', 'date', { unique: false });
           salesStore.createIndex('synced', 'synced', { unique: false });
           salesStore.createIndex('receipt_no', 'receipt_no', { unique: true });
-        }
-        
-        if (!db.objectStoreNames.contains('users')) {
-          const usersStore = db.createObjectStore('users', { keyPath: 'username' });
-          usersStore.createIndex('role', 'role', { unique: false });
-          usersStore.createIndex('branch', 'branch', { unique: false });
         }
       };
     });
@@ -1358,43 +1336,6 @@
     });
   }
 
-  // Clear IndexedDB store
-  function clearIndexedDBStore(storeName) {
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([storeName], 'readwrite');
-      const store = transaction.objectStore(storeName);
-      const request = store.clear();
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
-  }
-
-  // Load users from API and store in IndexedDB
-  async function loadUsersToIndexedDB() {
-    try {
-      const response = await fetch(ACCOUNTS_API_ENDPOINT);
-      const data = await response.json();
-      
-      if (data.success && data.data) {
-        await clearIndexedDBStore('users');
-        await saveToIndexedDB('users', data.data);
-        console.log('Users loaded to IndexedDB:', data.data.length);
-        return data.data;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error loading users:', error);
-      const cachedUsers = await getFromIndexedDB('users');
-      return cachedUsers || [];
-    }
-  }
-
-  // Get users from IndexedDB (offline fallback)
-  async function getUsers() {
-    const users = await getFromIndexedDB('users');
-    return users || [];
-  }
-
   // Get unsynced sales
   function getUnsyncedSales() {
     return new Promise((resolve, reject) => {
@@ -1422,29 +1363,30 @@
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
-    const ms = String(now.getMilliseconds()).padStart(3, '0');
     
-    return `SALE_${userPrefix}${day}${month}_${hours}${minutes}${seconds}_${ms}`;
+    return `sale ${userPrefix}${day}${month}${hours}${minutes}${seconds}`;
   }
 
   // Check if receipt exists
   async function checkReceiptExists(receiptNo) {
     try {
-      const response = await fetch(`${PRODUCTS_API_ENDPOINT}?action=get_stock_lite_all`);
+      const response = await fetch(`${PRODUCTS_API_ENDPOINT}?action=today`);
       if (!response.ok) return false;
-      const data = await response.json();
-      return false;
+      const todaySales = await response.json();
+      return todaySales.some(sale => sale.receipt_no === receiptNo);
     } catch (error) {
       console.error("Error checking receipt:", error);
       return false;
     }
   }
 
-  // BATCH post sale to API
+  // NEW: BATCH post sale to API - sends ALL items in ONE request
   async function postSaleToAPI(saleData) {
     try {
+      // Build ONE batch request for ALL items
       const params = new URLSearchParams();
       
+      // Common sale data
       params.append('batch', 'true');
       params.append('total_items', saleData.items.length.toString());
       params.append('receipt_no', saleData.receipt_no);
@@ -1453,6 +1395,7 @@
       params.append('Date', saleData.date);
       params.append('Time', saleData.time);
       
+      // Add customer info if available
       if (saleData.customerName) {
         params.append('Customer', saleData.customerName);
         params.append('Phone', saleData.customerPhone || '');
@@ -1460,6 +1403,7 @@
         params.append('phone', saleData.customerPhone || '');
       }
       
+      // Add points/discount info
       if (saleData.pointsUsed > 0) {
         params.append('Discount', -saleData.pointsUsed);
         params.append('points', saleData.pointsUsed);
@@ -1468,6 +1412,7 @@
         params.append('points', saleData.pointsEarned);
       }
       
+      // Add ALL items with indexed parameters
       saleData.items.forEach((item, index) => {
         params.append(`Product[${index}]`, item.name);
         params.append(`code[${index}]`, item.code || '');
@@ -1477,6 +1422,7 @@
         params.append(`Profit[${index}]`, item.quantity * (item.price - item.cost));
       });
       
+      // ONE API call for ALL items
       const response = await fetch(`${SALES_API_ENDPOINT}?${params.toString()}`);
       
       if (!response.ok) return false;
@@ -1497,7 +1443,7 @@
     }
   }
 
-  // Sync unsynced sales
+  // Sync unsynced sales with BATCH
   async function syncUnsyncedSales() {
     if (!navigator.onLine || !db || syncInProgress) return;
     
@@ -1519,9 +1465,20 @@
       for (let i = 0; i < unsyncedSales.length; i++) {
         const sale = unsyncedSales[i];
         
-        updateSyncProgress(i + 1, unsyncedSales.length, `Syncing ${sale.receipt_no}...`);
+        updateSyncProgress(i + 1, unsyncedSales.length, `Syncing ${sale.receipt_no} (${sale.items.length} items in 1 request)...`);
         
         try {
+          const receiptExists = await checkReceiptExists(sale.receipt_no);
+          
+          if (receiptExists) {
+            sale.synced = true;
+            await saveToIndexedDB('sales', sale);
+            syncedCount++;
+            syncResults.push({ receipt: sale.receipt_no, status: 'success' });
+            continue;
+          }
+          
+          // Send ALL items in ONE batch request
           const postSuccess = await postSaleToAPI(sale);
           
           if (postSuccess) {
@@ -1633,7 +1590,6 @@
   document.addEventListener('DOMContentLoaded', async function() {
     try {
       await initIndexedDB();
-      await loadUsersToIndexedDB();
     } catch (error) {
       console.error('DB init failed:', error);
     }
@@ -1645,7 +1601,7 @@
     if (username && role && branch) {
       showAppInterface(username, role, branch);
     }
-    //
+    
     function updateFooterLinks() {
       const isOffline = !navigator.onLine;
       document.querySelectorAll('.footer-item').forEach(link => {
@@ -1665,7 +1621,6 @@
       document.getElementById('offlineIndicator').style.display = 'none';
       updateFooterLinks();
       startAutoSync();
-      loadProductsFromAPI(true);
     });
     
     window.addEventListener('offline', () => {
@@ -1685,18 +1640,33 @@
     const password = document.getElementById("password").value.trim();
     const errorMsg = document.getElementById("error-msg");
 
+    const sheetID = "19niqobX0q2d8ts3kOKn0np8XCElgqaehHT1aqbd-wFk";
+    const sheetName = "accounts";
+    const apiURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&tq&sheet=${sheetName}`;
+
     try {
-      const users = await getUsers();
-      const user = users.find(u => u.username === username);
+      const response = await fetch(apiURL);
+      let text = await response.text();
+      text = text.substring(47, text.length - 2);
+      const json = JSON.parse(text);
+
+      const rows = json.table.rows.map(row => ({
+        Username: row.c[0]?.v?.toString() || "",
+        Password: row.c[1]?.v?.toString() || "",
+        Role: row.c[2]?.v?.toString() || "",
+        Branch: row.c[3]?.v?.toString() || "Main"
+      }));
+
+      const user = rows.find(u => u.Username === username);
 
       if (user) {
-        if (user.Password == password) {
-          localStorage.setItem("username", user.username);
+        if (user.Password === password) {
+          localStorage.setItem("username", user.Username);
           localStorage.setItem("role", user.Role);
           
           if (user.Branch && !user.Branch.includes(",")) {
             localStorage.setItem("branch", user.Branch);
-            showAppInterface(user.username, user.Role, user.Branch);
+            showAppInterface(user.Username, user.Role, user.Branch);
           } else {
             showBranchSelection(user.Branch);
           }
@@ -1875,8 +1845,7 @@
         filteredProducts = products;
       } else {
         filteredProducts = products.filter(p => 
-          p.product.toLowerCase().includes(currentSearchTerm) || 
-          (p.code && p.code.toString().toLowerCase().includes(currentSearchTerm))
+          p.name.toLowerCase().includes(currentSearchTerm)
         );
       }
       displayProducts();
@@ -1898,51 +1867,78 @@
           </div>
         `;
         
-        const url = `${PRODUCTS_API_ENDPOINT}?action=get_stock_lite_by_branch&branch=${encodeURIComponent(currentBranch)}`;
-        const response = await fetch(url);
+        const response = await fetch(PRODUCTS_API_ENDPOINT);
         const data = await response.json();
         
-        if (data.status === 'success' && data.data) {
-          products = data.data.map(item => ({
-            id: item.code,
-            code: item.code,
-            name: item.product,
-            price: parseFloat(item.selling_price) || parseFloat(item.cost_price) || 0,
-            cost: parseFloat(item.cost_price) || 0,
-            stock: parseFloat(item.current_stock) || 0,
-            branch: currentBranch,
-            tax: parseFloat(item.tax_percentage) || 15.5,
-            item: item.item_type || 'each',
-            stock_value: parseFloat(item.stock_value_by_cost) || 0
-          }));
-          
-          if (db) {
-            await clearIndexedDBStore('products');
-            await saveToIndexedDB('products', products);
-          }
-          
-          filteredProducts = products;
-          displayProducts();
-          showSyncStatus(`Loaded ${products.length} products`, "sync-success");
-        } else {
-          throw new Error('No data received');
+        const branchProducts = data.filter(item => item.Branch === currentBranch);
+        products = processProducts(branchProducts);
+        extractCustomers(data);
+        
+        if (db) {
+          await saveToIndexedDB('products', products);
+          await saveToIndexedDB('customers', customers);
         }
+        
+        filteredProducts = products;
+        displayProducts();
+        showSyncStatus(`Loaded ${products.length} products`, "sync-success");
         
       } catch (error) {
         showSyncStatus("Using offline data", "sync-error");
         
         if (db) {
           const offline = await getFromIndexedDB('products');
-          if (offline && offline.length) {
-            products = offline;
+          if (offline?.length) {
+            products = offline.filter(p => p.branch === currentBranch);
+            customers = await getFromIndexedDB('customers') || [];
             filteredProducts = products;
             displayProducts();
-            await showAlert("Offline Mode", "Using cached product data");
-          } else {
-            document.getElementById("product-list").innerHTML = '<div class="no-products">No products found. Please check your connection.</div>';
+            await showAlert("Offline Mode", "Using cached data");
           }
         }
       }
+    }
+
+    function processProducts(productsData) {
+      const map = new Map();
+      productsData.forEach(item => {
+        if (!map.has(item.Product)) {
+          map.set(item.Product, {
+            id: item.Product,
+            name: item.Product,
+            code: item.code || '',
+            price: parseFloat(item.Price) || 0,
+            cost: parseFloat(item.Cost) || 0,
+            stock: 0,
+            branch: item.Branch || 'Main',
+            tax: parseFloat(item.TAX) || 15.5,
+            usd: item.USD || '',
+            item: item.item || 'each',
+            searchTerms: (item.Product || '').toLowerCase()
+          });
+        }
+        const product = map.get(item.Product);
+        product.stock += parseInt(item.Stock) || 0;
+      });
+      return Array.from(map.values());
+    }
+
+    function extractCustomers(data) {
+      const map = new Map();
+      data.forEach(item => {
+        if (item.Customer && item.Phone) {
+          const key = `${item.Customer}-${item.Phone}`;
+          if (!map.has(key)) {
+            map.set(key, {
+              id: key,
+              name: item.Customer,
+              phone: item.Phone.toString(),
+              points: parseInt(item.Discount) || 0
+            });
+          }
+        }
+      });
+      customers = Array.from(map.values());
     }
 
     function showSyncStatus(message, className) {
@@ -1969,12 +1965,13 @@
       
       document.getElementById("product-count").textContent = filteredProducts.length;
       
+      // Show ALL products - no limit now!
       filteredProducts.forEach(product => {
         const card = document.createElement("div");
         card.className = `product-card${product.stock <= 0 ? ' out-of-stock' : ''}`;
         card.onclick = () => product.stock > 0 && addToCart(product.id);
         card.innerHTML = `
-          <div class="product-name">${escapeHtml(product.name)}</div>
+          <div class="product-name">${product.name}</div>
           <div class="product-meta">
             <span>Stock: ${product.stock}</span>
             <span class="stock-indicator stock-${product.stock > 10 ? 'high' : product.stock > 3 ? 'medium' : 'low'}">
@@ -1987,21 +1984,11 @@
       });
     }
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-      });
-    }
-
     async function addToCart(id) {
-      const product = products.find(p => p.id == id);
+      const product = products.find(p => p.id === id);
       if (!product) return;
       
-      const existing = cart.find(item => item.id == id);
+      const existing = cart.find(item => item.id === id);
       if (existing) {
         if (existing.quantity >= product.stock) {
           await showAlert("Insufficient Stock", `Only ${product.stock} available`);
@@ -2037,7 +2024,7 @@
         div.className = "cart-item";
         div.innerHTML = `
           <div class="cart-item-details">
-            <div class="cart-item-name">${escapeHtml(item.name)}</div>
+            <div class="cart-item-name">${item.name}</div>
             <div class="cart-item-actions">
               <div class="quantity-controls">
                 <button class="quantity-btn" onclick="updateQuantity(${i}, ${item.quantity - 1})" ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
@@ -2068,7 +2055,7 @@
       if (qty < 1) {
         cart.splice(index, 1);
       } else {
-        const product = products.find(p => p.id == cart[index].id);
+        const product = products.find(p => p.id === cart[index].id);
         if (product && qty > product.stock) {
           showAlert("Insufficient Stock", `Only ${product.stock} available`);
           return;
@@ -2097,7 +2084,7 @@
       customers.forEach(c => {
         const div = document.createElement("div");
         div.className = "customer-item";
-        div.innerHTML = `<strong>${escapeHtml(c.name)}</strong><br>${c.phone}<br>Points: ${c.points || 0}`;
+        div.innerHTML = `<strong>${c.name}</strong><br>${c.phone}<br>Points: ${c.points || 0}`;
         div.onclick = () => selectCustomer(c);
         list.appendChild(div);
       });
@@ -2118,7 +2105,7 @@
       filtered.forEach(c => {
         const div = document.createElement("div");
         div.className = "customer-item";
-        div.innerHTML = `<strong>${escapeHtml(c.name)}</strong><br>${c.phone}<br>Points: ${c.points || 0}`;
+        div.innerHTML = `<strong>${c.name}</strong><br>${c.phone}<br>Points: ${c.points || 0}`;
         div.onclick = () => selectCustomer(c);
         list.appendChild(div);
       });
@@ -2196,7 +2183,7 @@
         if (db) await saveToIndexedDB('sales', sale);
         
         cart.forEach(i => {
-          const p = products.find(p => p.id == i.id);
+          const p = products.find(p => p.id === i.id);
           if (p) p.stock -= i.quantity;
         });
         
@@ -2241,28 +2228,23 @@
       
       const itemsHtml = sale.items.map(item => `
         <div class="receipt-item">
-          <span>${escapeHtml(item.name)} x${item.quantity}</span>
+          <span>${item.name} x${item.quantity}</span>
           <span>$${(item.quantity * item.price).toFixed(2)}</span>
         </div>
       `).join('');
       
       const logoHtml = `
-        <div class="receipt-logo">
-        </div>
-        <div id="fallback-header" style="display: none; text-align: center;">
-          <div style="font-weight: bold; font-size: 18px;">MONACO MUTARE</div><div style="font-weight: 900; font-size: 24px; letter-spacing: 1px; text-transform: uppercase;">MONACO MUTARE</div>
-
+          <div style="font-weight: bold; font-size: 14px;">MONACO MUTARE</div>
         </div>
       `;
       
       receiptDiv.innerHTML = `
-        <div class="receipt-header">
           ${logoHtml}
-          <div class="receipt-info" style="font-weight: bold; margin-top: 5px;">0774 588 837</div>
+          <div class="receipt-info" style="font-weight: bold; margin-top: 5px;">Phone: 0774588837</div>
           <div class="receipt-info">${sale.receipt_no}</div>
           <div class="receipt-info">${sale.date} ${sale.time}</div>
           <div class="receipt-info">Cashier: ${sale.cashier}</div>
-          ${sale.customerName ? `<div class="receipt-info">Customer: ${escapeHtml(sale.customerName)}</div>` : ''}
+          ${sale.customerName ? `<div class="receipt-info">Customer: ${sale.customerName}</div>` : ''}
         </div>
         <div class="receipt-divider"></div>
         <div class="receipt-items">
@@ -2369,7 +2351,32 @@
           }, 500);
           
         } else {
+          const printContent = receiptDiv.innerHTML;
+          const originalTitle = document.title;
+          document.title = 'Receipt';
+          
+          const style = document.createElement('style');
+          style.textContent = `
+            @media print {
+              body * { visibility: hidden; }
+              #receipt-print, #receipt-print * { visibility: visible; }
+              #receipt-print { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%;
+                font-family: 'Courier New', monospace;
+              }
+            }
+          `;
+          document.head.appendChild(style);
+          
           window.print();
+          
+          setTimeout(() => {
+            document.head.removeChild(style);
+            document.title = originalTitle;
+          }, 1000);
         }
       } catch (e) {
         console.log('Print error:', e);
@@ -2422,7 +2429,6 @@ Thank you for your business!
       });
     }
 
-    // Make functions global
     window.addToCart = addToCart;
     window.completeSale = completeSale;
     window.loadSummary = loadSummary;
