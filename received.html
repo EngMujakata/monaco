@@ -1,0 +1,862 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#003366">
+  <title>MONACO POS | Stock Received</title>
+  <style>
+    :root {
+      --primary: #003366;
+      --primary-light: #004080;
+      --secondary: #4CAF50;
+      --danger: #f44336;
+      --warning: #ff9800;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --border-radius: 0.375rem;
+      --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f0f4f8;
+      color: var(--dark);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    
+    /* Header */
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .stats {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .stat {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      text-align: center;
+    }
+    
+    .stat-label {
+      font-size: 0.75rem;
+      opacity: 0.9;
+    }
+    
+    .stat-value {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+    
+    /* Controls */
+    .controls {
+      max-width: 1400px;
+      margin: 1rem auto;
+      padding: 0 1rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+    
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 2px solid #e9ecef;
+      border-radius: 2rem;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+    }
+    
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+    }
+    
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
+    .filter-group label {
+      font-weight: 500;
+      color: var(--dark);
+    }
+    
+    select {
+      padding: 0.5rem 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      background: white;
+      cursor: pointer;
+    }
+    
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn:hover {
+      background: var(--primary-light);
+      transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+      background: var(--gray);
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    
+    /* Table Container */
+    .table-container {
+      max-width: 1400px;
+      margin: 1rem auto;
+      padding: 0 1rem;
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      background: white;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: var(--box-shadow);
+      border-collapse: collapse;
+    }
+    
+    thead {
+      background: var(--primary);
+      color: white;
+    }
+    
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      background: var(--primary);
+      white-space: nowrap;
+    }
+    
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 0.9rem;
+    }
+    
+    tr:hover {
+      background: #f8f9fa;
+    }
+    
+    /* Cashier highlight */
+    td:first-child, th:first-child {
+      font-weight: 600;
+    }
+    
+    /* Positive stock highlight */
+    .stock-positive {
+      color: var(--secondary);
+      font-weight: bold;
+    }
+    
+    .profit-positive {
+      color: var(--secondary);
+    }
+    
+    /* Loading & Empty States */
+    .loading-state, .empty-state {
+      text-align: center;
+      padding: 3rem;
+      background: white;
+      border-radius: 1rem;
+      margin: 1rem;
+    }
+    
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e9ecef;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal.show {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 1rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .modal-body {
+      padding: 1.5rem;
+    }
+    
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #e9ecef;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+    
+    .close {
+      float: right;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--gray);
+    }
+    
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--gray);
+      font-size: 0.8rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      th, td {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+      }
+      
+      .stats {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+    
+    /* Print styles */
+    @media print {
+      .controls, .btn, footer {
+        display: none;
+      }
+      
+      body {
+        background: white;
+      }
+      
+      th {
+        background: #ddd;
+        color: black;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="logo">
+        <i class="fas fa-boxes" style="font-size: 1.5rem;"></i>
+        <h1>Stock Received</h1>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Total Records</div>
+          <div class="stat-value" id="totalRecords">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Total Stock Units</div>
+          <div class="stat-value" id="totalStock">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Total Profit</div>
+          <div class="stat-value" id="totalProfit">$0</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search by product, cashier, or receipt...">
+    </div>
+    <div class="filter-group">
+      <label><i class="fas fa-user"></i> Cashier:</label>
+      <select id="cashierFilter">
+        <option value="">All Cashiers</option>
+      </select>
+    </div>
+    <button class="btn" onclick="refreshData()">
+      <i class="fas fa-sync-alt"></i> Refresh
+    </button>
+    <button class="btn btn-secondary" onclick="printTable()">
+      <i class="fas fa-print"></i> Print
+    </button>
+  </div>
+
+  <div class="table-container">
+    <div id="loadingState" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading stock data...</p>
+    </div>
+    <div id="tableWrapper" style="display: none;">
+      <table id="stockTable">
+        <thead>
+          <tr>
+            <th>Cashier</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Product</th>
+            <th>Code</th>
+            <th>Cost</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Profit</th>
+            <th>Receipt No</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <i class="fas fa-inbox" style="font-size: 3rem; color: var(--gray);"></i>
+      <p style="margin-top: 1rem;">No stock records found with positive values</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>MONACO POS System | Stock Received Report</p>
+  </footer>
+
+  <!-- Detail Modal -->
+  <div id="detailModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3><i class="fas fa-info-circle"></i> Stock Details</h3>
+      </div>
+      <div class="modal-body" id="modalBody">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+    // API Configuration
+    const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw69_MlzTIkiaiA8w9-fjgxvuB8rLuQ1BZgHdd4fcRh_2qtzRKBniv-HxTWM5OGEwo/exec';
+    
+    let stockData = [];
+    let filteredData = [];
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadStockData();
+        
+        // Setup search listener
+        document.getElementById('searchInput').addEventListener('input', filterData);
+        document.getElementById('cashierFilter').addEventListener('change', filterData);
+    });
+
+    // Load stock data from API
+    async function loadStockData() {
+        showLoading(true);
+        
+        try {
+            const response = await fetch(API_ENDPOINT);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                // Filter out records with empty/zero/negative stock
+                stockData = result.data.filter(item => {
+                    const stockValue = parseFloat(item.Stock);
+                    return stockValue > 0 && !isNaN(stockValue);
+                });
+                
+                populateCashierFilter();
+                filterData();
+                updateStats();
+            } else {
+                showEmptyState(true);
+                console.error('API returned error:', result.error);
+            }
+        } catch (error) {
+            console.error('Error loading stock data:', error);
+            showEmptyState(true);
+            showError('Failed to load stock data. Please check your connection and try again.');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Populate cashier filter dropdown
+    function populateCashierFilter() {
+        const cashiers = new Set();
+        
+        stockData.forEach(item => {
+            if (item.Cashier && item.Cashier.trim()) {
+                cashiers.add(item.Cashier);
+            }
+        });
+        
+        const select = document.getElementById('cashierFilter');
+        select.innerHTML = '<option value="">All Cashiers</option>';
+        
+        Array.from(cashiers).sort().forEach(cashier => {
+            const option = document.createElement('option');
+            option.value = cashier;
+            option.textContent = cashier;
+            select.appendChild(option);
+        });
+    }
+
+    // Filter data based on search and cashier filter
+    function filterData() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        const selectedCashier = document.getElementById('cashierFilter').value;
+        
+        filteredData = stockData.filter(item => {
+            // Filter by cashier
+            if (selectedCashier && item.Cashier !== selectedCashier) {
+                return false;
+            }
+            
+            // Filter by search term
+            if (searchTerm) {
+                const productMatch = (item.Product || '').toLowerCase().includes(searchTerm);
+                const cashierMatch = (item.Cashier || '').toLowerCase().includes(searchTerm);
+                const receiptMatch = (item.receipt_no || '').toLowerCase().includes(searchTerm);
+                const codeMatch = (item.code || '').toString().toLowerCase().includes(searchTerm);
+                
+                if (!productMatch && !cashierMatch && !receiptMatch && !codeMatch) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+        
+        renderTable();
+        updateStats();
+    }
+
+    // Format date properly
+    function formatDate(dateValue) {
+        if (!dateValue) return '-';
+        try {
+            const date = new Date(dateValue);
+            if (!isNaN(date.getTime())) {
+                return date.toLocaleDateString();
+            }
+        } catch(e) {}
+        return dateValue;
+    }
+
+    // Format time properly
+    function formatTime(timeValue) {
+        if (!timeValue) return '-';
+        try {
+            // Handle Excel serial time numbers
+            if (typeof timeValue === 'number' && timeValue < 1) {
+                const totalSeconds = timeValue * 86400;
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = Math.floor(totalSeconds % 60);
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            const date = new Date(timeValue);
+            if (!isNaN(date.getTime())) {
+                return date.toLocaleTimeString();
+            }
+        } catch(e) {}
+        return timeValue;
+    }
+
+    // Render table with filtered data
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        
+        if (filteredData.length === 0) {
+            document.getElementById('tableWrapper').style.display = 'none';
+            showEmptyState(true);
+            return;
+        }
+        
+        showEmptyState(false);
+        document.getElementById('tableWrapper').style.display = 'block';
+        
+        tbody.innerHTML = '';
+        
+        filteredData.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            tr.style.cursor = 'pointer';
+            tr.onclick = () => showDetails(row);
+            
+            // Parse values
+            const stockValue = parseFloat(row.Stock) || 0;
+            const profitValue = parseFloat(row.Profit) || 0;
+            const costValue = parseFloat(row.Cost) || 0;
+            const priceValue = parseFloat(row.Price) || 0;
+            
+            tr.innerHTML = `
+                <td><strong>${escapeHtml(row.Cashier || '-')}</strong></td>
+                <td>${formatDate(row.Date)}</td>
+                <td>${formatTime(row.Time)}</td>
+                <td>${escapeHtml(row.Product || '-')}</td>
+                <td><code>${escapeHtml(row.code?.toString() || '-')}</code></td>
+                <td>$${costValue.toFixed(2)}</td>
+                <td>$${priceValue.toFixed(2)}</td>
+                <td class="stock-positive">${stockValue}</td>
+                <td class="profit-positive">$${profitValue.toFixed(2)}</td>
+                <td><small>${escapeHtml(row.receipt_no || '-')}</small></td>
+            `;
+            
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Update statistics
+    function updateStats() {
+        const totalRecords = filteredData.length;
+        let totalStock = 0;
+        let totalProfit = 0;
+        
+        filteredData.forEach(item => {
+            totalStock += parseFloat(item.Stock) || 0;
+            totalProfit += parseFloat(item.Profit) || 0;
+        });
+        
+        document.getElementById('totalRecords').textContent = totalRecords;
+        document.getElementById('totalStock').textContent = totalStock;
+        document.getElementById('totalProfit').textContent = `$${totalProfit.toFixed(2)}`;
+    }
+
+    // Show detailed view of a record
+    function showDetails(row) {
+        const modal = document.getElementById('detailModal');
+        const modalBody = document.getElementById('modalBody');
+        
+        const stockValue = parseFloat(row.Stock) || 0;
+        const profitValue = parseFloat(row.Profit) || 0;
+        const costValue = parseFloat(row.Cost) || 0;
+        const priceValue = parseFloat(row.Price) || 0;
+        
+        modalBody.innerHTML = `
+            <div style="display: grid; gap: 0.75rem;">
+                <div style="display: grid; grid-template-columns: 120px 1fr; gap: 0.5rem;">
+                    <strong><i class="fas fa-user"></i> Cashier:</strong>
+                    <span>${escapeHtml(row.Cashier || '-')}</span>
+                    
+                    <strong><i class="fas fa-calendar"></i> Date:</strong>
+                    <span>${formatDate(row.Date)}</span>
+                    
+                    <strong><i class="fas fa-clock"></i> Time:</strong>
+                    <span>${formatTime(row.Time)}</span>
+                    
+                    <strong><i class="fas fa-box"></i> Product:</strong>
+                    <span>${escapeHtml(row.Product || '-')}</span>
+                    
+                    <strong><i class="fas fa-barcode"></i> Code:</strong>
+                    <span><code>${escapeHtml(row.code?.toString() || '-')}</code></span>
+                    
+                    <strong><i class="fas fa-dollar-sign"></i> Cost:</strong>
+                    <span>$${costValue.toFixed(2)}</span>
+                    
+                    <strong><i class="fas fa-tag"></i> Price:</strong>
+                    <span>$${priceValue.toFixed(2)}</span>
+                    
+                    <strong><i class="fas fa-warehouse"></i> Stock:</strong>
+                    <span class="stock-positive">${stockValue}</span>
+                    
+                    <strong><i class="fas fa-chart-line"></i> Profit:</strong>
+                    <span class="profit-positive">$${profitValue.toFixed(2)}</span>
+                    
+                    <strong><i class="fas fa-receipt"></i> Receipt No:</strong>
+                    <span>${escapeHtml(row.receipt_no || '-')}</span>
+                </div>
+            </div>
+        `;
+        
+        modal.classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('detailModal').classList.remove('show');
+    }
+
+    // Refresh data
+    function refreshData() {
+        loadStockData();
+    }
+
+    // Print table
+    function printTable() {
+        const printContent = document.getElementById('tableWrapper').cloneNode(true);
+        
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+            const totalRecords = document.getElementById('totalRecords').textContent;
+            const totalStock = document.getElementById('totalStock').textContent;
+            const totalProfit = document.getElementById('totalProfit').textContent;
+            
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Stock Received Report</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                margin: 20px;
+                            }
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-top: 20px;
+                                font-size: 12px;
+                            }
+                            th {
+                                background: #003366;
+                                color: white;
+                                padding: 10px;
+                                text-align: left;
+                            }
+                            td {
+                                padding: 8px 10px;
+                                border-bottom: 1px solid #ddd;
+                            }
+                            .stock-positive {
+                                color: #4CAF50;
+                                font-weight: bold;
+                            }
+                            .profit-positive {
+                                color: #4CAF50;
+                            }
+                            h2 {
+                                color: #003366;
+                            }
+                            .header {
+                                text-align: center;
+                                margin-bottom: 20px;
+                            }
+                            .stats {
+                                display: flex;
+                                justify-content: space-around;
+                                margin: 20px 0;
+                                padding: 10px;
+                                background: #f5f5f5;
+                            }
+                            .stat {
+                                text-align: center;
+                            }
+                            .stat-label {
+                                font-size: 12px;
+                                color: #666;
+                            }
+                            .stat-value {
+                                font-size: 18px;
+                                font-weight: bold;
+                            }
+                            @media print {
+                                body {
+                                    margin: 0;
+                                    padding: 10px;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h2>MONACO POS - Stock Received Report</h2>
+                            <p>Generated: ${new Date().toLocaleString()}</p>
+                        </div>
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-label">Total Records</div>
+                                <div class="stat-value">${totalRecords}</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">Total Stock Units</div>
+                                <div class="stat-value">${totalStock}</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">Total Profit</div>
+                                <div class="stat-value">${totalProfit}</div>
+                            </div>
+                        </div>
+                        ${printContent.outerHTML}
+                    </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            
+            setTimeout(() => {
+                printWindow.print();
+                setTimeout(() => {
+                    if (!printWindow.closed) {
+                        printWindow.close();
+                    }
+                }, 1000);
+            }, 500);
+        } else {
+            window.print();
+        }
+    }
+
+    // Helper functions
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showLoading(show) {
+        if (show) {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('tableWrapper').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+        } else {
+            document.getElementById('loadingState').style.display = 'none';
+        }
+    }
+
+    function showEmptyState(show) {
+        if (show && filteredData.length === 0) {
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('tableWrapper').style.display = 'none';
+        } else {
+            document.getElementById('emptyState').style.display = 'none';
+        }
+    }
+
+    function showError(message) {
+        const emptyState = document.getElementById('emptyState');
+        emptyState.innerHTML = `
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger);"></i>
+            <p style="margin-top: 1rem; color: var(--danger);">${message}</p>
+            <button class="btn" onclick="refreshData()" style="margin-top: 1rem;">
+                <i class="fas fa-sync-alt"></i> Try Again
+            </button>
+        `;
+        emptyState.style.display = 'block';
+    }
+
+    // Close modal on outside click
+    window.onclick = function(event) {
+        const modal = document.getElementById('detailModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+</script>
+  
+</body>
+</html>
