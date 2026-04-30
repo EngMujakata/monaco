@@ -528,7 +528,7 @@
       </div>
       <form id="updateProductForm">
         <div class="form-grid">
-          <div class="form-group"><label>Branch *</label><select id="updateBranch" required><option value="Main">Main</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
+          <div class="form-group"><label>Branch *</label><select id="updateBranch" required><option value="monaco">monaco</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
           <div class="form-group"><label>Product Code *</label><input type="text" id="updateCode" readonly required></div>
           <div class="form-group"><label>Product Name</label><input type="text" id="updateProduct" placeholder="New product name"></div>
           <div class="form-group"><label>Cost</label><input type="number" id="updateCost" step="0.01" min="0" placeholder="New cost"></div>
@@ -549,7 +549,7 @@
           <h2 class="card-title">Product Inventory</h2>
           <div class="branch-filter">
             <label style="font-size: 0.8rem;">Branch:</label>
-            <select id="viewBranchSelect" onchange="loadProducts()" style="width: auto;"><option value="Main">Main</option><option value="Branch2">Br 2</option><option value="Branch3">Br 3</option></select>
+            <select id="viewBranchSelect" onchange="loadProducts()" style="width: auto;"><option value="monaco">monaco</option><option value="Branch2">Br 2</option><option value="Branch3">Br 3</option></select>
             <button class="btn btn-primary btn-sm" onclick="loadProducts()"><i class="fas fa-sync-alt"></i></button>
             <button class="btn btn-success btn-sm" onclick="exportCurrentStockPDF()"><i class="fas fa-file-pdf"></i></button>
             <button class="btn btn-warning btn-sm" onclick="openStockModal()"><i class="fas fa-plus-circle"></i> Stock</button>
@@ -578,7 +578,7 @@
       <div class="card">
         <div class="card-header"><h2 class="card-title">Stock Take</h2><div style="display: flex; gap: 0.25rem;"><button class="btn btn-primary btn-sm" onclick="loadStockTakeProducts()"><i class="fas fa-sync-alt"></i></button><button class="btn btn-success btn-sm" onclick="exportStockTakePDF()"><i class="fas fa-file-pdf"></i></button></div></div>
         <div class="form-grid" style="margin-bottom: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">
-          <div class="form-group"><label>Branch</label><select id="stockTakeBranch" onchange="loadStockTakeProducts()"><option value="Main">Main</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
+          <div class="form-group"><label>Branch</label><select id="stockTakeBranch" onchange="loadStockTakeProducts()"><option value="monaco">monaco</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
           <div class="form-group"><label>Cashier</label><select id="stockTakeCashier"></select></div>
           <div class="form-group"><label>Search</label><input type="text" id="stockTakeSearch" placeholder="Filter..." onkeyup="filterStockTakeTable()"></div>
         </div>
@@ -597,7 +597,7 @@
       <div class="card">
         <div class="card-header"><h2 class="card-title">Stock Take History</h2><div style="display: flex; gap: 0.25rem;"><button class="btn btn-primary btn-sm" onclick="loadStockTakeHistory()"><i class="fas fa-search"></i></button><button class="btn btn-success btn-sm" onclick="exportStockTakeHistoryPDF()"><i class="fas fa-file-pdf"></i></button></div></div>
         <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">
-          <div class="form-group"><label>Branch</label><select id="historyBranch"><option value="Main">Main</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
+          <div class="form-group"><label>Branch</label><select id="historyBranch"><option value="manaco">monaco</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
           <div class="form-group"><label>Start Date</label><input type="date" id="historyStartDate"></div>
           <div class="form-group"><label>End Date</label><input type="date" id="historyEndDate"></div>
           <div class="form-group"><label>Cashier</label><input type="text" id="historyCashier" placeholder="Cashier name"></div>
@@ -625,7 +625,7 @@
         <form id="stockActionForm">
           <div class="form-group"><label>Product Name</label><input type="text" id="stockProductName" readonly style="background: #f5f5f5;"></div>
           <div class="form-group"><label>Product Code</label><input type="text" id="stockProductCode" readonly style="background: #f5f5f5;"></div>
-          <div class="form-group"><label>Branch</label><select id="stockBranch"><option value="Main">Main</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
+          <div class="form-group"><label>Branch</label><select id="stockBranch"><option value="monaco">monaco</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
           <div class="form-group"><label>Cost Price</label><input type="number" id="stockCost" step="0.01" min="0" oninput="calculateProfitPreview()"></div>
           <div class="form-group"><label>Selling Price</label><input type="number" id="stockPrice" step="0.01" min="0" oninput="calculateProfitPreview()"></div>
           <div class="form-group"><label>Quantity</label><input type="number" id="stockQuantity" step="1" min="1" value="1" oninput="calculateProfitPreview()"></div>
@@ -648,7 +648,7 @@
       <div class="modal-body">
         <form id="newProductForm">
           <div class="form-group"><label>Product Name *</label><input type="text" id="newProductName" required></div>
-          <div class="form-group"><label>Branch *</label><select id="newProductBranch" required><option value="Main">Main</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
+          <div class="form-group"><label>Branch *</label><select id="newProductBranch" required><option value="monaco">monaco</option><option value="Branch2">Branch 2</option><option value="Branch3">Branch 3</option></select></div>
           <div class="form-group"><label>Cost Price *</label><input type="number" id="newProductCost" step="0.01" min="0" required oninput="calculateNewProductProfit()"></div>
           <div class="form-group"><label>Selling Price *</label><input type="number" id="newProductPrice" step="0.01" min="0" required oninput="calculateNewProductProfit()"></div>
           <div class="form-group"><label>Initial Stock *</label><input type="number" id="newProductStock" step="1" min="0" value="0" required oninput="calculateNewProductProfit()"></div>
@@ -670,7 +670,7 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbxrxWe7aF1njsbEgZ9kQTIXMxRdNnIyx551xl-CIFB67JgDgyIQkOOup2RVud5hEZw/exec';
     
     let currentProducts = [];
-    let currentBranch = 'Main';
+    let currentBranch = 'monaco';
     let currentUser = null;
     let stockTakeProducts = [];
     let stockTakeCounts = new Map();
@@ -997,23 +997,60 @@
     function filterStockTakeTable() { renderStockTakeTable(); }
     function resetStockTakeCounts() { stockTakeCounts.clear(); stockTakeProducts.forEach(p => { const key = p.code + '|' + p.product; stockTakeCounts.set(key, ''); }); renderStockTakeTable(); }
     
-    async function completeStockTakeBatch() {
-      const branch = document.getElementById('stockTakeBranch').value;
-      const cashier = document.getElementById('stockTakeCashier').value;
-      if (!cashier) return showAlert('Error', 'Please select a cashier');
-      const stockTakeData = [];
-      for (let p of stockTakeProducts) { const key = p.code + '|' + p.product; const counted = stockTakeCounts.get(key); if (counted !== undefined && counted !== '' && parseFloat(counted) !== p.expected) stockTakeData.push({ product: p.product, code: p.code, counted_stock: parseFloat(counted) || 0 }); }
-      if (stockTakeData.length === 0) return showAlert('Info', 'No stock changes detected');
-      const stockTakeId = 'ST' + Date.now();
-      showLoading('Processing stock take batch...');
-      try {
-        const params = new URLSearchParams({ action: 'stock_take', branch: branch, cashier: cashier, stock_take_id: stockTakeId, stock_take_data: JSON.stringify(stockTakeData) });
-        const response = await fetch(`${API_URL}?${params}`);
-        const data = await response.json();
-        if (data.status === 'success') { showAlert('Success', `Stock take completed.\nTotal Variance: ${data.total_variance} units\nTotal Value: $${data.total_value_variance.toFixed(2)}`); stockTakeCounts.clear(); loadStockTakeProducts(); loadProducts(); } 
-        else { showAlert('Error', data.message || 'Stock take failed'); }
-      } catch (error) { console.error(error); showAlert('Error', 'Stock take failed'); } finally { hideLoading(); }
-    }
+   async function completeStockTakeBatch() {
+     const branch = document.getElementById('stockTakeBranch').value;
+     const cashier = document.getElementById('stockTakeCashier').value;
+     if (!cashier) return showAlert('Error', 'Please select a cashier');
+  
+     const stockTakeData = [];
+     for (let p of stockTakeProducts) {
+       const key = p.code + '|' + p.product;
+       const counted = stockTakeCounts.get(key);
+       if (counted !== undefined && counted !== '' && parseFloat(counted) !== p.expected) {
+         stockTakeData.push({ 
+           product: p.product, 
+           code: p.code, 
+           counted_stock: parseFloat(counted) || 0 
+         });
+       }
+     }
+  
+     if (stockTakeData.length === 0) {
+       return showAlert('Info', 'No stock changes detected');
+     }
+  
+     const stockTakeId = 'ST_' + Date.now();
+     const receiptNo = 'STOCKTAKE_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+  
+     showLoading('Processing stock take batch...');
+  
+     try {
+       const params = new URLSearchParams();
+       params.append('action', 'stock_take');
+       params.append('branch', branch);
+       params.append('cashier', cashier);
+       params.append('stock_take_id', stockTakeId);
+       params.append('stock_take_data', JSON.stringify(stockTakeData));
+       params.append('receipt_no', receiptNo);
+    
+       const response = await fetch(`${API_URL}?${params}`);
+       const data = await response.json();
+    
+       if (data.status === 'success') {
+         showAlert('Success', `Stock take completed.\nTotal Variance: ${data.total_variance || 0} units\nTotal Value: $${(data.total_value_variance || 0).toFixed(2)}`);
+         stockTakeCounts.clear();
+         await loadStockTakeProducts();
+         await loadProducts();
+       } else {
+         showAlert('Error', data.message || 'Stock take failed');
+       }
+     } catch (error) {
+       console.error(error);
+       showAlert('Error', 'Stock take failed: ' + error.message);
+     } finally {
+       hideLoading();
+     }
+   }
     
     function exportCurrentStockPDF() { const { jsPDF } = window.jspdf; const doc = new jsPDF('landscape'); doc.setFontSize(18); doc.text('MONACO Point Of Sale', 14, 22); doc.setFontSize(12); doc.text(`Current Stock Report - ${currentBranch}`, 14, 32); doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 38); const productMap = new Map(); currentProducts.forEach(p => { const key = `${p.code}-${p.Product}`; if (!productMap.has(key)) productMap.set(key, { code: p.code, name: p.Product, cost: parseFloat(p.Cost) || 0, price: parseFloat(p.Price) || 0, stock: 0, item: p.item || 'each', tax: parseFloat(p.TAX) || 15.5 }); productMap.get(key).stock += parseFloat(p.Stock) || 0; }); const products = Array.from(productMap.values()); const tableColumn = ["Code", "Product", "Cost", "Price", "Stock", "Value", "Item", "TAX%"]; const tableRows = products.map(p => [p.code || '', p.name || '', `$${p.cost.toFixed(2)}`, `$${p.price.toFixed(2)}`, p.stock.toString(), `$${(p.stock * p.price).toFixed(2)}`, p.item, `${p.tax}%`]); doc.autoTable({ head: [tableColumn], body: tableRows, startY: 45, theme: 'striped', headStyles: { fillColor: [0, 51, 102] } }); doc.save(`current_stock_${currentBranch}_${new Date().toISOString().split('T')[0]}.pdf`); }
     function exportStockTakePDF() { exportCurrentStockPDF(); }
@@ -1024,19 +1061,45 @@
       const startDate = document.getElementById('historyStartDate').value;
       const endDate = document.getElementById('historyEndDate').value;
       const cashier = document.getElementById('historyCashier').value;
+  
       showLoading('Loading history...');
+  
       try {
-        const params = new URLSearchParams({ action: 'get_stock_take_history', branch: branch, start_date: startDate, end_date: endDate });
+        const params = new URLSearchParams();
+        params.append('action', 'get_stock_take_history');
+        params.append('branch', branch);
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
         if (cashier) params.append('cashier', cashier);
+    
         const response = await fetch(`${API_URL}?${params}`);
         const data = await response.json();
-        if (data.status === 'success') {
-          const tbody = document.getElementById('historyTableBody');
-          if (!data.data || data.data.length === 0) tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No records found</td></tr>';
-          else tbody.innerHTML = data.data.map(item => `<tr><td>${item.date || ''}</td><td>${item.reason || ''}</td><td>${item.branch || ''}</td><td>${item.cashier || ''}</td><td>${item.product || ''}</td><td>${item.code || ''}</td><td>${item.stock_change || 0}</td><td>$${(item.value_change || 0).toFixed(2)}</td></tr>`).join('');
-        } else { showAlert('Error', data.message || 'Failed to load history'); }
-      } catch (error) { console.error(error); showAlert('Error', 'Failed to load history'); } finally { hideLoading(); }
-    }
+    
+        const tbody = document.getElementById('historyTableBody');
+    
+        if (data.status === 'success' && data.data && data.data.length > 0) {
+          tbody.innerHTML = data.data.map(item => `
+            <tr>
+              <td>${item.date || ''}</td>
+              <td>${item.reason || ''}</td>
+              <td>${item.branch || ''}</td>
+              <td>${item.cashier || ''}</td>
+              <td>${item.product || ''}</td>
+              <td>${item.code || ''}</td>
+              <td>${item.stock_change || 0}</td>
+              <td>$${(item.value_change || 0).toFixed(2)}</td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No records found</td></tr>';
+        }
+      } catch (error) {
+        console.error(error);
+        showAlert('Error', 'Failed to load history');
+      } finally {
+        hideLoading();
+      }
+}
     
     function exportStockTakeHistoryPDF() { const { jsPDF } = window.jspdf; const doc = new jsPDF('landscape'); doc.setFontSize(18); doc.text('MONACO Point Of Sale', 14, 22); doc.setFontSize(12); doc.text(`Stock Take History - ${document.getElementById('historyBranch').value}`, 14, 32); doc.text(`Period: ${document.getElementById('historyStartDate').value} to ${document.getElementById('historyEndDate').value}`, 14, 38); const table = document.getElementById('historyTable'); const rows = []; const headers = []; const headerCells = table.querySelectorAll('thead th'); headerCells.forEach(th => headers.push(th.textContent)); const bodyRows = table.querySelectorAll('tbody tr'); bodyRows.forEach(tr => { const row = []; tr.querySelectorAll('td').forEach(td => row.push(td.textContent)); if (row.length === headers.length) rows.push(row); }); doc.autoTable({ head: [headers], body: rows, startY: 45, theme: 'striped', headStyles: { fillColor: [0, 51, 102] } }); doc.save(`stock_history_${new Date().toISOString().split('T')[0]}.pdf`); }
     
