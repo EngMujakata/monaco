@@ -1494,7 +1494,7 @@
     const itemsHtml = sale.items.map(item => `<div class="receipt-item"><span>${escapeHtml(item.name)} x${item.quantity.toFixed(item.item_type === 'each' ? 0 : 3)}</span><span>$${(item.quantity * item.price).toFixed(2)}</span></div>`).join('');
     const receiptDiv = document.getElementById("receipt-print");
     receiptDiv.innerHTML = `
-      <div class="receipt-header"><div style="font-weight:bold;">MONACO MUTARE</div><div style="font-weight:light;">5 First Street, Mutarele</div><div class="receipt-info">${sale.receipt_no}</div><div class="receipt-info">${sale.date} ${sale.time}</div><div class="receipt-info">Cashier: ${sale.cashier}</div></div>
+      <div class="receipt-header"><div style="font-weight:bold;">MONACO MUTARE</div><div style="font-weight:light;">5 First Street, Mutarele</div><div style="font-weight:light;">077 458 8837</div><div class="receipt-info">${sale.receipt_no}</div><div class="receipt-info">${sale.date} ${sale.time}</div><div class="receipt-info">Cashier: ${sale.cashier}</div></div>
       <div class="receipt-divider"></div><div class="receipt-items">${itemsHtml}</div><div class="receipt-divider"></div>
       <div class="receipt-total">Total: $${sale.total.toFixed(2)}</div>
       <div class="receipt-info">Cash Received: $${(sale.cashReceived || 0).toFixed(2)}</div>
